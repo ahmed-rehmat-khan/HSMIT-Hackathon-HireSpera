@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07070d">
+  <title>Leave requests | HireSpera</title>
+  <meta name="description" content="Review leave requests, protect the yearly balance and leave a clear decision note.">
+  <script>
+    try {
+      var savedTheme = localStorage.getItem('hcm_theme');
+      document.documentElement.dataset.theme = savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
+    } catch (error) {
+      document.documentElement.dataset.theme = 'dark';
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="../assets/brand-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="app-shell">
+    <aside id="app-sidebar" class="sidebar"></aside>
+    <main class="main-content" id="main-content">
+      <header id="app-topbar" class="topbar"></header>
+      <div class="page-wrap">
+        <section class="page-heading" aria-labelledby="page-title">
+          <div>
+            <span class="eyebrow">Time away</span>
+            <h1 id="page-title">Leave requests</h1>
+            <p>Every request counts working days only. Approval is what moves the balance.</p>
+          </div>
+          <div class="heading-actions">
+            <span class="heading-meta"><span class="meta-number" id="pending-total">0</span><span>pending</span></span>
+          </div>
+        </section>
+
+        <section class="leave-summary" aria-label="Leave totals">
+          <article class="summary-chip tone-amber">
+            <span class="summary-icon" data-icon="clock"></span>
+            <div><strong id="summary-pending">0</strong><small>Requests awaiting reply</small></div>
+          </article>
+          <article class="summary-chip tone-green">
+            <span class="summary-icon" data-icon="checkCircle"></span>
+            <div><strong id="summary-approved">0</strong><small>Approved days this year</small></div>
+          </article>
+          <article class="summary-chip tone-blue">
+            <span class="summary-icon" data-icon="calendarCheck"></span>
+            <div><strong id="summary-onleave">0</strong><small>People on leave today</small></div>
+          </article>
+        </section>
+
+        <div class="leave-toolbar">
+          <div class="filter-chips" role="group" aria-label="Filter leave requests">
+            <button class="filter-chip is-active" type="button" data-leave-filter="all" aria-pressed="true">All</button>
+            <button class="filter-chip" type="button" data-leave-filter="Pending" aria-pressed="false">Pending</button>
+            <button class="filter-chip" type="button" data-leave-filter="Approved" aria-pressed="false">Approved</button>
+            <button class="filter-chip" type="button" data-leave-filter="Rejected" aria-pressed="false">Rejected</button>
+          </div>
+          <span class="insight-meta" id="leave-count">0 requests</span>
+        </div>
+
+        <section class="panel" aria-labelledby="requests-heading">
+          <div class="panel-heading">
+            <div>
+              <span class="eyebrow">Decision desk</span>
+              <h2 id="requests-heading">All requests</h2>
+              <p>Approve or reject with a short note. Quotas are checked again before approval.</p>
+            </div>
+          </div>
+          <div class="leave-list" id="leave-list" aria-live="polite"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div class="sidebar-scrim" aria-hidden="true"></div>
+
+  <dialog class="modal" id="decision-dialog" aria-labelledby="decision-title">
+    <form id="decision-form" class="form-stack" novalidate>
+      <input name="leaveId" type="hidden">
+      <input name="decisionStatus" type="hidden">
+      <div class="modal-heading">
+        <div>
+          <span class="eyebrow">Leave decision</span>
+          <h2 id="decision-title">Approve leave request</h2>
+          <p id="decision-copy">This decision will update the employee’s balance.</p>
+        </div>
+        <button class="icon-button" type="button" data-dialog-close aria-label="Close decision form" data-icon="x"></button>
+      </div>
+      <div class="decision-summary">
+        <span class="avatar" id="decision-avatar">—</span>
+        <div>
+          <strong id="decision-name">—</strong>
+          <small id="decision-dates">—</small>
+        </div>
+      </div>
+      <label class="field">
+        <span class="field-label">Decision note <span class="optional">(optional)</span></span>
+        <textarea id="decision-comment" name="comment" maxlength="300" rows="3" placeholder="A short note for the employee…"></textarea>
+        <div class="form-row-end"><small class="field-hint">Keep it clear and kind. The employee will see this.</small><span class="char-count" data-char-count-for="decision-comment">0 / 300</span></div>
+        <small class="field-error" data-error-for="comment"></small>
+      </label>
+      <p class="form-message" id="decision-message" aria-live="polite"></p>
+      <div class="modal-actions">
+        <button class="button button-secondary" type="button" data-dialog-close>Cancel</button>
+        <button class="button button-primary" type="submit" id="decision-submit">Approve request</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="../js/storage.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/employees.js"></script>
+  <script src="../js/attendance.js"></script>
+  <script src="../js/leave.js"></script>
+  <script src="../js/helper.js"></script>
+  <script src="../js/ui.js"></script>
+  <script>
+    (() => {
+      'use strict';
+      const app = window.HireSpera;
+      const user = app.auth.protect('admin');
+      if (!user) return;
+      app.ui.mountShell({ active: 'leaves', breadcrumb: 'Leave requests' });
+
+      const today = app.today();
+      const dialog = document.querySelector('#decision-dialog');
+      const form = document.querySelector('#decision-form');
+      const message = document.querySelector('#decision-message');
+      const submitButton = document.querySelector('#decision-submit');
+      let activeFilter = 'all';
+
+      function peopleMap() {
+        return new Map(app.read(app.keys.USERS, []).map((person) => [person.id, person]));
+      }
+
+      function statusClass(status) {
+        return `status-${String(status).toLowerCase().replace(/\s+/g, '-')}`;
+      }
+
+      function syncNavBadge() {
+        const badge = document.querySelector('#app-sidebar .nav-badge');
+        if (!badge) return;
+        const count = app.leave.pendingCount();
+        badge.textContent = count;
+        badge.hidden = count === 0;
+      }
+
+      function renderSummary() {
+        const pending = app.leave.list().filter((leave) => leave.status === 'Pending').length;
+        const year = new Date().getFullYear();
+        const approvedDays = app.employees.list().reduce((total, person) => total + app.leave.summary(person.id, year).used, 0);
+        const onLeave = new Set(app.leave.list()
+          .filter((leave) => leave.status === 'Approved' && leave.from <= today && leave.to >= today)
+          .map((leave) => leave.employeeId)).size;
+        document.querySelector('#pending-total').textContent = pending;
+        document.querySelector('#summary-pending').textContent = pending;
+        document.querySelector('#summary-approved').textContent = approvedDays;
+        document.querySelector('#summary-onleave').textContent = onLeave;
+        syncNavBadge();
+      }
+
+      function renderLeaves() {
+        const people = peopleMap();
+        const all = app.leave.list();
+        const items = all.filter((leave) => activeFilter === 'all' || leave.status === activeFilter);
+        document.querySelector('#leave-count').textContent = `${items.length} ${items.length === 1 ? 'request' : 'requests'}`;
+        const target = document.querySelector('#leave-list');
+
+        if (!items.length) {
+          target.innerHTML = `<div class="empty-state">
+            <span data-icon="calendarCheck"></span>
+            <strong>${all.length ? 'Nothing in this view' : 'No leave requests yet'}</strong>
+            <p>${all.length ? 'Try another filter to see the rest of the decision history.' : 'Requests arrive here when an employee applies from their dashboard. Working days are counted automatically.'}</p>
+          </div>`;
+          app.ui.hydrateIcons(target);
+          return;
+        }
+
+        target.innerHTML = items.map((leave) => {
+          const person = people.get(leave.employeeId);
+          const name = person?.name || 'Former employee';
+          const decided = leave.status !== 'Pending';
+          const comment = String(leave.comment || '').trim();
+          return `<article class="leave-card">
+            <div class="leave-person">
+              <span class="avatar">${app.escape(app.initials(name))}</span>
+              <div>
+                <strong>${app.escape(name)}</strong>
+                <small>${app.escape(person?.department || 'No department')} · ${app.escape(leave.type)}</small>
+              </div>
+            </div>
+            <div class="leave-dates">
+              <strong>${app.dateLabel(leave.from)} – ${app.dateLabel(leave.to)}</strong>
+              <small>${leave.days} working ${leave.days === 1 ? 'day' : 'days'} · requested ${app.dateLabel(leave.createdAt ? leave.createdAt.slice(0, 10) : leave.from)}</small>
+            </div>
+            <p class="leave-reason">${app.escape(leave.reason)}</p>
+            <div class="leave-card-side">
+              <span class="status ${statusClass(leave.status)}">${app.escape(leave.status)}</span>
+              ${leave.status === 'Pending' ? `<div class="leave-decisions">
+                <button class="button button-small button-secondary" type="button" data-decision="Approved" data-id="${app.escape(leave.id)}">Approve</button>
+                <button class="button button-small button-outline-danger" type="button" data-decision="Rejected" data-id="${app.escape(leave.id)}">Reject</button>
+              </div>` : `<small class="muted">${leave.decidedAt ? `Decided ${app.dateLabel(leave.decidedAt.slice(0, 10))}` : 'Decision saved'}</small>`}
+            </div>
+            ${comment ? `<p class="leave-comment"><strong>Note:</strong> ${app.escape(comment)}</p>` : ''}
+          </article>`;
+        }).join('');
+        app.ui.hydrateIcons(target);
+      }
+
+      function openDecision(leave, status) {
+        const person = peopleMap().get(leave.employeeId);
+        const name = person?.name || 'Former employee';
+        const summary = person ? app.leave.summary(person.id, new Date().getFullYear()) : null;
+        form.reset();
+        app.ui.clearErrors(form);
+        app.ui.setFormMessage(message, '', 'info');
+        form.elements.leaveId.value = leave.id;
+        form.elements.decisionStatus.value = status;
+        form.elements.comment.value = '';
+        document.querySelector('#decision-title').textContent = status === 'Approved' ? 'Approve leave request' : 'Reject leave request';
+        document.querySelector('#decision-copy').textContent = status === 'Approved'
+          ? `This will add ${leave.days} working ${leave.days === 1 ? 'day' : 'days'} to approved leave${summary ? `, leaving ${Math.max(0, summary.remaining - leave.days)} of ${summary.quota} days` : ''}.`
+          : 'Rejecting leaves the balance unchanged. A short note helps the employee understand the decision.';
+        document.querySelector('#decision-avatar').textContent = app.initials(name);
+        document.querySelector('#decision-name').textContent = name;
+        document.querySelector('#decision-dates').textContent = `${app.dateLabel(leave.from)} – ${app.dateLabel(leave.to)} · ${leave.days} working ${leave.days === 1 ? 'day' : 'days'} · ${leave.type}`;
+        submitButton.textContent = status === 'Approved' ? 'Approve request' : 'Reject request';
+        submitButton.className = `button ${status === 'Approved' ? 'button-primary' : 'button-danger'}`;
+        dialog.showModal();
+        window.setTimeout(() => form.elements.comment.focus({ preventScroll: true }), 60);
+      }
+
+      document.querySelector('#leave-list').addEventListener('click', (event) => {
+        const button = event.target.closest('[data-decision]');
+        if (!button) return;
+        const leave = app.leave.list().find((item) => item.id === button.dataset.id);
+        if (!leave) {
+          app.ui.toast('That request could not be found. Refresh and try again.', 'error');
+          return;
+        }
+        openDecision(leave, button.dataset.decision);
+      });
+
+      document.querySelectorAll('[data-leave-filter]').forEach((button) => {
+        button.addEventListener('click', () => {
+          activeFilter = button.dataset.leaveFilter;
+          document.querySelectorAll('[data-leave-filter]').forEach((chip) => {
+            const active = chip === button;
+            chip.classList.toggle('is-active', active);
+            chip.setAttribute('aria-pressed', String(active));
+          });
+          renderLeaves();
+        });
+      });
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        app.ui.clearErrors(form);
+        const leaveId = form.elements.leaveId.value;
+        const status = form.elements.decisionStatus.value;
+        const comment = form.elements.comment.value.trim();
+        if (comment.length > 300) {
+          app.ui.setFieldError(form, 'comment', 'Keep the decision note under 300 characters.');
+          form.elements.comment.focus();
+          return;
+        }
+        try {
+          const updated = app.leave.decide(leaveId, status, comment);
+          const person = peopleMap().get(updated.employeeId);
+          dialog.close();
+          app.ui.toast(`${person?.name || 'The request'} was ${status === 'Approved' ? 'approved' : 'rejected'}.`);
+          renderSummary();
+          renderLeaves();
+        } catch (error) {
+          app.ui.setFormMessage(message, error.message, 'error');
+          if (error.field) app.ui.setFieldError(form, error.field, error.message);
+        }
+      });
+
+      dialog.addEventListener('close', () => {
+        form.reset();
+        app.ui.clearErrors(form);
+        app.ui.setFormMessage(message, '', 'info');
+      });
+
+      renderSummary();
+      renderLeaves();
+      app.ui.hydrateIcons();
+    })();
+  </script>
+</body>
+</html>

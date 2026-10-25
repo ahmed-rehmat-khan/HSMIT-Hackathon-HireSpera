@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07070d">
+  <title>Monthly payslip | HireSpera</title>
+  <meta name="description" content="A print-ready monthly payslip calculated from saved attendance, approved leave and the company's working calendar.">
+  <script>
+    try {
+      var savedTheme = localStorage.getItem('hcm_theme');
+      document.documentElement.dataset.theme = savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
+    } catch (error) {
+      document.documentElement.dataset.theme = 'dark';
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="../assets/brand-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="app-shell">
+    <aside id="app-sidebar" class="sidebar"></aside>
+    <main class="main-content" id="main-content">
+      <header id="app-topbar" class="topbar"></header>
+      <div class="page-wrap">
+        <section class="page-heading" aria-labelledby="page-title">
+          <div>
+            <span class="eyebrow">Payroll summary</span>
+            <h1 id="page-title">A month, made legible</h1>
+            <p id="payslip-intro">Pay is calculated from the attendance, approved leave and working days saved for the selected month.</p>
+          </div>
+          <div class="heading-actions no-print">
+            <div class="payslip-controls">
+              <label id="employee-control">
+                Employee
+                <select id="employee-select"></select>
+              </label>
+              <label>
+                Pay period
+                <input type="month" id="pay-period">
+              </label>
+            </div>
+            <button class="button button-secondary" type="button" id="print-payslip">
+              <span data-icon="printer"></span>Print payslip
+            </button>
+            <div class="report-slot" data-report-slot></div>
+          </div>
+        </section>
+
+        <p class="form-message hidden" id="payslip-message" aria-live="polite"></p>
+
+        <section class="panel" id="payslip-empty" hidden>
+          <div class="empty-state">
+            <span data-icon="receipt"></span>
+            <strong id="payslip-empty-title">No payslip to prepare yet</strong>
+            <p id="payslip-empty-copy">Add an employee to the directory and their monthly record will appear here.</p>
+            <a class="button button-primary button-small" href="employees.html" id="payslip-empty-action">Add an employee</a>
+          </div>
+        </section>
+
+        <section class="payslip-sheet" id="payslip-sheet" aria-labelledby="slip-month">
+          <header class="slip-header">
+            <div>
+              <span class="brand-lockup slip-brand">
+                <img class="brand-mark" src="../assets/brand-mark.svg" alt="" width="38" height="38">
+                <span class="brand-copy"><strong>HireSpera</strong><small>Build teams. Build tomorrow.</small></span>
+              </span>
+              <p class="slip-company" id="slip-company">Company</p>
+            </div>
+            <div class="slip-period">
+              <span class="eyebrow">Pay statement</span>
+              <h2 id="slip-month">—</h2>
+              <small id="slip-period-note">Monthly salary summary</small>
+            </div>
+          </header>
+
+          <div class="slip-employee">
+            <div>
+              <span class="slip-label">Employee</span>
+              <strong id="slip-name">—</strong>
+              <small id="slip-email">—</small>
+            </div>
+            <div>
+              <span class="slip-label">Department &amp; role</span>
+              <strong id="slip-department">—</strong>
+              <small id="slip-role">—</small>
+            </div>
+            <div>
+              <span class="slip-label">Pay period</span>
+              <strong id="slip-date">—</strong>
+              <small id="slip-workdays">—</small>
+            </div>
+          </div>
+
+          <div class="slip-section-title">
+            <h3>Attendance in this period</h3>
+            <span>Drawn from saved records</span>
+          </div>
+          <div class="slip-metrics">
+            <div><span>Days attended</span><strong id="slip-attended">0</strong></div>
+            <div><span>Approved leave</span><strong id="slip-leave">0</strong></div>
+            <div><span>Absent days</span><strong id="slip-absent">0</strong></div>
+            <div><span>Half days</span><strong id="slip-half">0</strong></div>
+          </div>
+
+          <div class="slip-section-title">
+            <h3>Salary calculation</h3>
+            <span id="slip-rate-note">Per-day rate based on this month</span>
+          </div>
+          <div class="salary-lines">
+            <div><span>Monthly salary</span><strong id="slip-salary">—</strong></div>
+            <div><span>Per-day rate</span><strong id="slip-per-day">—</strong></div>
+            <div class="deduction-line"><span>Absence deduction</span><strong id="slip-deduction">—</strong></div>
+            <div class="net-line"><span>Net pay</span><strong id="slip-net">—</strong></div>
+          </div>
+
+          <p class="slip-note" id="slip-note">Approved leave is paid and does not reduce net pay. Deductions cover absent working days and half days at half a day each, measured against the company’s saved working calendar.</p>
+
+          <footer class="slip-footer">
+            <span>Generated <span id="slip-generated">—</span> · HireSpera</span>
+            <span class="slip-stamp"><span data-icon="shield"></span>Confidential · Employee copy</span>
+          </footer>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div class="sidebar-scrim" aria-hidden="true"></div>
+
+  <script src="../js/storage.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/employees.js"></script>
+  <script src="../js/attendance.js"></script>
+  <script src="../js/leave.js"></script>
+  <script src="../js/helper.js"></script>
+  <script src="../js/ui.js"></script>
+  <script>
+    (() => {
+      'use strict';
+      const app = window.HireSpera;
+      const user = app.auth.protect();
+      if (!user) return;
+
+      const isAdmin = user.role === 'admin';
+      app.ui.mountShell({ active: 'payslip', breadcrumb: isAdmin ? 'Payslips' : 'My payslip' });
+
+      const employeeSelect = document.querySelector('#employee-select');
+      const employeeControl = document.querySelector('#employee-control');
+      const monthInput = document.querySelector('#pay-period');
+      const printButton = document.querySelector('#print-payslip');
+      const sheet = document.querySelector('#payslip-sheet');
+      const emptyPanel = document.querySelector('#payslip-empty');
+      const message = document.querySelector('#payslip-message');
+      const now = new Date();
+      const currentMonth = app.monthKey(now);
+      let people = [];
+
+      monthInput.value = currentMonth;
+      monthInput.max = currentMonth;
+      employeeControl.hidden = !isAdmin;
+
+      function setMessage(text, type = 'info') {
+        app.ui.setFormMessage(message, text, type);
+      }
+
+      function showEmpty(title, copy, withAction) {
+        sheet.hidden = true;
+        emptyPanel.hidden = false;
+        document.querySelector('#payslip-empty-title').textContent = title;
+        document.querySelector('#payslip-empty-copy').textContent = copy;
+        document.querySelector('#payslip-empty-action').hidden = !withAction;
+        printButton.disabled = true;
+        window.dispatchEvent(new CustomEvent('hirespera:payslip-changed', { detail: { employeeId: null, month: monthInput.value } }));
+      }
+
+      function showSheet() {
+        sheet.hidden = false;
+        emptyPanel.hidden = true;
+        printButton.disabled = false;
+      }
+
+      function selectedEmployee() {
+        if (!isAdmin) {
+          return app.read(app.keys.USERS, []).find((person) => person.id === user.id && person.role === 'employee') || null;
+        }
+        return people.find((person) => person.id === employeeSelect.value) || null;
+      }
+
+      function renderPayslip() {
+        setMessage('', 'info');
+        const employee = selectedEmployee();
+
+        if (!employee) {
+          if (isAdmin && !people.length) {
+            showEmpty(
+              'No payslips to prepare yet',
+              'The payroll desk begins with your first employee. Add someone to the directory and their monthly record will appear here.',
+              true
+            );
+          } else {
+            showEmpty(
+              'That record could not be found',
+              'The employee may have been removed from the directory. Choose another employee or refresh the page.',
+              false
+            );
+          }
+          return;
+        }
+
+        const monthValue = monthInput.value || currentMonth;
+        const [year, month] = monthValue.split('-').map(Number);
+        if (!year || !month) return;
+        const company = app.read(app.keys.COMPANY, {});
+        const summary = app.attendance.monthSummary(employee, year, month);
+        const attendedDays = summary.records.filter((record) => Boolean(record.checkIn)).length;
+
+        showSheet();
+        document.querySelector('#payslip-intro').textContent = isAdmin
+          ? `A print-ready record for ${employee.name}, calculated from saved attendance and approved leave.`
+          : 'Your pay, calculated from the attendance and approved leave saved for this month.';
+        document.querySelector('#slip-company').textContent = company.name || 'Company';
+        document.querySelector('#slip-month').textContent = app.monthLabel(year, month);
+        document.querySelector('#slip-period-note').textContent = `${summary.workingDays} working ${summary.workingDays === 1 ? 'day' : 'days'} in this period`;
+        document.querySelector('#slip-name').textContent = employee.name;
+        document.querySelector('#slip-email').textContent = employee.email;
+        document.querySelector('#slip-department').textContent = employee.department || 'No department';
+        document.querySelector('#slip-role').textContent = employee.jobTitle || 'Employee';
+        document.querySelector('#slip-date').textContent = app.monthLabel(year, month);
+        document.querySelector('#slip-workdays').textContent = employee.createdAt
+          ? `Joined ${app.dateLabel(employee.createdAt, { day: 'numeric', month: 'short', year: 'numeric' })}`
+          : 'Employee record';
+        document.querySelector('#slip-attended').textContent = attendedDays;
+        document.querySelector('#slip-leave').textContent = summary.leaveDays;
+        document.querySelector('#slip-absent').textContent = summary.absentDays;
+        document.querySelector('#slip-half').textContent = summary.halfDays;
+        document.querySelector('#slip-rate-note').textContent = `${summary.workingDays} working ${summary.workingDays === 1 ? 'day' : 'days'} · half days count as 0.5`;
+        document.querySelector('#slip-salary').textContent = app.money(employee.salary);
+        document.querySelector('#slip-per-day').textContent = app.money(summary.perDaySalary);
+        document.querySelector('#slip-deduction').textContent = summary.deduction > 0 ? `− ${app.money(summary.deduction)}` : app.money(0);
+        document.querySelector('#slip-net').textContent = app.money(summary.netSalary);
+        document.querySelector('#slip-note').textContent = summary.absentDays || summary.halfDays
+          ? `Deduction: ${summary.absentDays} absent ${summary.absentDays === 1 ? 'day' : 'days'} plus ${summary.halfDays} half ${summary.halfDays === 1 ? 'day' : 'days'}, at ${app.money(summary.perDaySalary)} per working day. Approved leave is paid.`
+          : 'No absence deduction applies this month. Approved leave is paid, and only unrecorded or half working days reduce net pay.';
+        document.querySelector('#slip-generated').textContent = app.dateLabel(app.today(), { day: 'numeric', month: 'short', year: 'numeric' });
+
+        window.dispatchEvent(new CustomEvent('hirespera:payslip-changed', {
+          detail: { employeeId: employee.id, month: monthValue, employee, summary }
+        }));
+      }
+
+      function renderEmployeeOptions() {
+        if (!isAdmin) return;
+        people = app.employees.list();
+        employeeSelect.innerHTML = people.length
+          ? people.map((person) => `<option value="${app.escape(person.id)}">${app.escape(person.name)} · ${app.escape(person.department || 'No department')}</option>`).join('')
+          : '<option value="">No employees yet</option>';
+        const requested = new URLSearchParams(location.search).get('employee');
+        if (requested && people.some((person) => person.id === requested)) employeeSelect.value = requested;
+        employeeSelect.disabled = !people.length;
+      }
+
+      employeeSelect.addEventListener('change', renderPayslip);
+      monthInput.addEventListener('change', renderPayslip);
+      printButton.addEventListener('click', () => {
+        if (!printButton.disabled) window.print();
+      });
+
+      renderEmployeeOptions();
+      renderPayslip();
+      app.ui.hydrateIcons();
+
+      window.addEventListener('hirespera:data-changed', () => {
+        renderEmployeeOptions();
+        renderPayslip();
+      });
+    })();
+  </script>
+  <script src="../js/bonus.js"></script>
+</body>
+</html>

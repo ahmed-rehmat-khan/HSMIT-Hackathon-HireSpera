@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07070d">
+  <title>Company settings | HireSpera</title>
+  <meta name="description" content="Set the office hours, grace period, leave quota and working week that drive every HireSpera calculation.">
+  <script>
+    try {
+      var savedTheme = localStorage.getItem('hcm_theme');
+      document.documentElement.dataset.theme = savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
+    } catch (error) {
+      document.documentElement.dataset.theme = 'dark';
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="../assets/brand-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="app-shell">
+    <aside id="app-sidebar" class="sidebar"></aside>
+    <main class="main-content" id="main-content">
+      <header id="app-topbar" class="topbar"></header>
+      <div class="page-wrap page-wrap-narrow">
+        <section class="page-heading" aria-labelledby="page-title">
+          <div>
+            <span class="eyebrow">Company preferences</span>
+            <h1 id="page-title">The rules behind the record</h1>
+            <p>These settings drive attendance, leave and payslip maths for <strong id="settings-company">your company</strong>.</p>
+          </div>
+          <div class="heading-actions">
+            <span class="insight-meta"><span class="live-dot" aria-hidden="true"></span>Applied to saved data</span>
+          </div>
+        </section>
+
+        <div class="settings-layout">
+          <form id="settings-form" class="panel form-stack settings-form" novalidate>
+            <div class="settings-section">
+              <div class="settings-section-head">
+                <div>
+                  <span class="eyebrow">Work schedule</span>
+                  <h2>Shape of the workday</h2>
+                  <p>A check-in after the start time plus grace is Late. Work under five hours is a Half Day.</p>
+                </div>
+                <span class="settings-symbol" data-icon="clock"></span>
+              </div>
+              <div class="field-grid-3">
+                <label class="field">
+                  <span class="field-label">Office start time</span>
+                  <input name="officeStart" type="time" required>
+                  <small class="field-error" data-error-for="officeStart"></small>
+                </label>
+                <label class="field">
+                  <span class="field-label">Grace period (minutes)</span>
+                  <input name="graceMinutes" type="number" min="0" max="180" step="1" inputmode="numeric" required>
+                  <small class="field-error" data-error-for="graceMinutes"></small>
+                </label>
+                <label class="field">
+                  <span class="field-label">Yearly leave quota</span>
+                  <input name="leaveQuota" type="number" min="0" max="365" step="1" inputmode="numeric" required>
+                  <small class="field-error" data-error-for="leaveQuota"></small>
+                </label>
+              </div>
+              <div class="week-preview" id="week-preview" aria-live="polite"></div>
+              <fieldset class="day-picker">
+                <legend>Working days</legend>
+                <p>Weekends are always outside the working week. Choose the weekdays your team normally works.</p>
+                <div class="day-options">
+                  <label><input type="checkbox" name="workingDays" value="1"><span>Mon</span></label>
+                  <label><input type="checkbox" name="workingDays" value="2"><span>Tue</span></label>
+                  <label><input type="checkbox" name="workingDays" value="3"><span>Wed</span></label>
+                  <label><input type="checkbox" name="workingDays" value="4"><span>Thu</span></label>
+                  <label><input type="checkbox" name="workingDays" value="5"><span>Fri</span></label>
+                </div>
+                <small class="field-error" data-error-for="workingDays"></small>
+              </fieldset>
+            </div>
+
+            <div class="settings-section">
+              <div class="settings-section-head">
+                <div>
+                  <span class="eyebrow">Optional verification</span>
+                  <h2>Camera check-in location</h2>
+                  <p>Set the office point used by the optional face-presence and GPS check-in. Normal check-in never depends on these coordinates.</p>
+                </div>
+                <span class="settings-symbol" data-icon="mapPin"></span>
+              </div>
+              <div class="field-pair">
+                <label class="field">
+                  <span class="field-label">Office latitude <span class="optional">(optional)</span></span>
+                  <input name="officeLatitude" type="number" min="-90" max="90" step="any" inputmode="decimal" placeholder="e.g. 24.8607">
+                  <small class="field-error" data-error-for="officeLatitude"></small>
+                </label>
+                <label class="field">
+                  <span class="field-label">Office longitude <span class="optional">(optional)</span></span>
+                  <input name="officeLongitude" type="number" min="-180" max="180" step="any" inputmode="decimal" placeholder="e.g. 67.0011">
+                  <small class="field-error" data-error-for="officeLongitude"></small>
+                </label>
+              </div>
+              <div class="week-preview">
+                <span data-icon="shield"></span>
+                <span>Camera frames and the employee’s live location are checked in the moment and never saved. Face detection confirms presence only, not identity.</span>
+              </div>
+            </div>
+
+            <p class="form-message" id="settings-message" aria-live="polite"></p>
+            <div class="form-row-end">
+              <span class="muted">Leave balances use approved working days. Payslips use the selected month.</span>
+              <button class="button button-primary" type="submit">Save settings</button>
+            </div>
+          </form>
+
+          <aside class="settings-aside" aria-label="How settings are used">
+            <article class="info-card">
+              <h3><span data-icon="sparkles"></span>What these rules touch</h3>
+              <p>One source of truth keeps the numbers honest across the whole workspace.</p>
+              <ul class="rule-list">
+                <li><span data-icon="clock"></span><span>Late is measured against the start time plus grace.</span></li>
+                <li><span data-icon="checkCircle"></span><span>Under five worked hours becomes a Half Day.</span></li>
+                <li><span data-icon="calendar"></span><span>Only approved leave reduces the yearly balance.</span></li>
+                <li><span data-icon="receipt"></span><span>Per-day pay divides salary by the working days in that month.</span></li>
+              </ul>
+            </article>
+
+            <article class="info-card">
+              <h3><span data-icon="camera"></span>Camera check-in</h3>
+              <p>An optional layer for employees who want to verify presence. The normal check-in button always remains available.</p>
+              <div class="map-figure" aria-hidden="true"><span class="map-label">100 m radius</span></div>
+              <ul class="rule-list">
+                <li><span data-icon="mapPin"></span><span>Requires a modern browser, permission, and localhost or HTTPS.</span></li>
+                <li><span data-icon="shield"></span><span>No image, face template or location history is stored.</span></li>
+              </ul>
+            </article>
+          </aside>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="sidebar-scrim" aria-hidden="true"></div>
+
+  <script src="../js/storage.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/employees.js"></script>
+  <script src="../js/attendance.js"></script>
+  <script src="../js/leave.js"></script>
+  <script src="../js/helper.js"></script>
+  <script src="../js/ui.js"></script>
+  <script>
+    (() => {
+      'use strict';
+      const app = window.HireSpera;
+      const user = app.auth.protect('admin');
+      if (!user) return;
+      app.ui.mountShell({ active: 'settings', breadcrumb: 'Company settings' });
+
+      const form = document.querySelector('#settings-form');
+      const message = document.querySelector('#settings-message');
+      const preview = document.querySelector('#week-preview');
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      let company = app.read(app.keys.COMPANY, {});
+
+      document.querySelector('#settings-company').textContent = company.name || 'your company';
+
+      function fillForm() {
+        form.elements.officeStart.value = company.officeStart || '09:00';
+        form.elements.graceMinutes.value = company.graceMinutes ?? 15;
+        form.elements.leaveQuota.value = company.leaveQuota ?? 20;
+        form.querySelectorAll('[name="workingDays"]').forEach((input) => {
+          input.checked = (company.workingDays || [1, 2, 3, 4, 5]).includes(Number(input.value));
+        });
+        form.elements.officeLatitude.value = company.officeLatitude !== null && company.officeLatitude !== undefined && company.officeLatitude !== '' && Number.isFinite(Number(company.officeLatitude)) ? company.officeLatitude : '';
+        form.elements.officeLongitude.value = company.officeLongitude !== null && company.officeLongitude !== undefined && company.officeLongitude !== '' && Number.isFinite(Number(company.officeLongitude)) ? company.officeLongitude : '';
+        renderPreview();
+      }
+
+      function selectedDays() {
+        return [...form.querySelectorAll('[name="workingDays"]:checked')]
+          .map((input) => Number(input.value))
+          .sort((a, b) => a - b);
+      }
+
+      function renderPreview() {
+        const days = selectedDays();
+        const start = form.elements.officeStart.value || '09:00';
+        const grace = Number(form.elements.graceMinutes.value || 0);
+        const quota = Number(form.elements.leaveQuota.value || 0);
+        const dayText = !days.length
+          ? 'No working days selected yet.'
+          : days.join(',') === '1,2,3,4,5'
+            ? 'Monday to Friday'
+            : days.map((day) => dayNames[day]).join(', ');
+        preview.innerHTML = `<span data-icon="calendar"></span><span>${!days.length
+          ? 'Select at least one working day so attendance and leave can be counted.'
+          : `Open at <strong>${app.escape(app.timeLabel(start))}</strong> with <strong>${grace} minute${grace === 1 ? '' : 's'}</strong> grace · <strong>${app.escape(dayText)}</strong> · <strong>${quota} leave day${quota === 1 ? '' : 's'}</strong> a year.`}</span>`;
+        app.ui.hydrateIcons(preview);
+      }
+
+      form.addEventListener('input', (event) => {
+        if (event.target.name && event.target.name !== 'workingDays') {
+          const error = form.querySelector(`[data-error-for="${event.target.name}"]`);
+          if (error) {
+            error.textContent = '';
+            error.classList.remove('is-visible');
+          }
+          event.target.classList.remove('is-invalid');
+          event.target.removeAttribute('aria-invalid');
+        }
+        renderPreview();
+      });
+      form.addEventListener('change', (event) => {
+        if (event.target.name === 'workingDays') {
+          app.ui.setGroupError(form, 'workingDays', '');
+        }
+        renderPreview();
+      });
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        app.ui.clearErrors(form);
+        const officeStart = form.elements.officeStart.value;
+        const graceRaw = form.elements.graceMinutes.value;
+        const quotaRaw = form.elements.leaveQuota.value;
+        const workingDays = selectedDays();
+        const latitudeRaw = form.elements.officeLatitude.value.trim();
+        const longitudeRaw = form.elements.officeLongitude.value.trim();
+        let valid = true;
+
+        if (!officeStart) {
+          app.ui.setFieldError(form, 'officeStart', 'Choose the office start time.');
+          valid = false;
+        }
+        const grace = Number(graceRaw);
+        if (graceRaw === '' || !Number.isInteger(grace) || grace < 0 || grace > 180) {
+          app.ui.setFieldError(form, 'graceMinutes', 'Use a whole number from 0 to 180.');
+          valid = false;
+        }
+        const quota = Number(quotaRaw);
+        if (quotaRaw === '' || !Number.isInteger(quota) || quota < 0 || quota > 365) {
+          app.ui.setFieldError(form, 'leaveQuota', 'Use a whole number from 0 to 365.');
+          valid = false;
+        }
+        if (!workingDays.length) {
+          app.ui.setGroupError(form, 'workingDays', 'Select at least one working day.');
+          valid = false;
+        }
+
+        let latitude = null;
+        let longitude = null;
+        if (latitudeRaw || longitudeRaw) {
+          latitude = Number(latitudeRaw);
+          longitude = Number(longitudeRaw);
+          if (!latitudeRaw || !Number.isFinite(latitude) || latitude < -90 || latitude > 90) {
+            app.ui.setFieldError(form, 'officeLatitude', 'Enter a latitude from -90 to 90, or leave both fields empty.');
+            valid = false;
+          }
+          if (!longitudeRaw || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+            app.ui.setFieldError(form, 'officeLongitude', 'Enter a longitude from -180 to 180, or leave both fields empty.');
+            valid = false;
+          }
+        }
+
+        if (!valid) {
+          app.ui.setFormMessage(message, 'Check the highlighted settings and try again.', 'error');
+          app.ui.focusFirstError(form);
+          return;
+        }
+
+        company = app.read(app.keys.COMPANY, {});
+        app.write(app.keys.COMPANY, {
+          ...company,
+          officeStart,
+          graceMinutes: grace,
+          leaveQuota: quota,
+          workingDays,
+          officeLatitude: latitude,
+          officeLongitude: longitude
+        });
+        company = app.read(app.keys.COMPANY, {});
+        app.ui.setFormMessage(message, 'Company settings saved. New calculations will use these rules.', 'success');
+        app.ui.toast('Company settings saved.');
+        renderPreview();
+      });
+
+      fillForm();
+      app.ui.hydrateIcons();
+    })();
+  </script>
+  <script src="../js/bonus.js"></script>
+</body>
+</html>

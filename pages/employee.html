@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07070d">
+  <title>My workspace | HireSpera</title>
+  <meta name="description" content="Your own HireSpera desk: check in, keep an eye on leave and read the latest team note.">
+  <script>
+    try {
+      var savedTheme = localStorage.getItem('hcm_theme');
+      document.documentElement.dataset.theme = savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
+    } catch (error) {
+      document.documentElement.dataset.theme = 'dark';
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="../assets/brand-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="app-shell employee-shell">
+    <aside id="app-sidebar" class="sidebar"></aside>
+    <main class="main-content" id="main-content">
+      <header id="app-topbar" class="topbar"></header>
+      <div class="page-wrap">
+        <section class="employee-hero" aria-labelledby="page-title">
+          <div class="employee-hero-copy">
+            <span class="eyebrow" id="today-label">Your day</span>
+            <h1 id="page-title"><span id="greeting">Welcome</span>, <span id="welcome-name">there</span></h1>
+            <p id="hero-copy">Your attendance, time away and the latest note from your team.</p>
+          </div>
+          <div class="clock-panel">
+            <div class="clock-face">
+              <div class="clock-time" id="live-clock">—</div>
+              <div class="clock-date" id="live-date">Local time</div>
+              <div class="clock-status-row">
+                <span class="today-status" id="today-status">Not checked in</span>
+                <span class="status status-neutral" id="today-status-pill">Not checked in</span>
+              </div>
+            </div>
+            <div class="attendance-actions">
+              <button class="button button-primary" type="button" id="check-in"><span data-icon="logIn"></span>Check in now</button>
+              <button class="button button-secondary" type="button" id="check-out"><span data-icon="logOut"></span>Check out</button>
+            </div>
+            <div data-camera-slot></div>
+          </div>
+        </section>
+
+        <section class="stats-grid employee-stats" aria-label="Your totals">
+          <article class="stat-card tone-violet">
+            <div class="stat-top"><span class="stat-label">Leave balance</span><span class="stat-mark" data-icon="calendarCheck"></span></div>
+            <div class="stat-value" id="leave-balance">0</div>
+            <div class="stat-foot" id="leave-balance-foot">Approved days remaining</div>
+          </article>
+          <article class="stat-card tone-blue">
+            <div class="stat-top"><span class="stat-label">Today’s hours</span><span class="stat-mark" data-icon="clock"></span></div>
+            <div class="stat-value" id="today-hours">0.0</div>
+            <div class="stat-foot">Saved work time today</div>
+          </article>
+          <article class="stat-card tone-green">
+            <div class="stat-top"><span class="stat-label">Attended this month</span><span class="stat-mark" data-icon="trendingUp"></span></div>
+            <div class="stat-value" id="month-attended">0</div>
+            <div class="stat-foot" id="month-attended-foot">No working days yet</div>
+          </article>
+          <article class="stat-card tone-amber">
+            <div class="stat-top"><span class="stat-label">Today’s status</span><span class="stat-mark" data-icon="checkCircle"></span></div>
+            <div class="stat-value stat-value-word" id="today-status-card">Not in</div>
+            <div class="stat-foot">Based on your saved check-in</div>
+          </article>
+        </section>
+
+        <div class="employee-grid">
+          <section class="panel employee-attendance-panel" aria-labelledby="attendance-heading">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Your record</span>
+                <h2 id="attendance-heading">Recent attendance</h2>
+                <p>Recent working days from your own record.</p>
+              </div>
+              <span class="insight-meta">Last 10 workdays</span>
+            </div>
+            <div class="table-scroll">
+              <table class="attendance-panel">
+                <caption class="sr-only">Your recent attendance</caption>
+                <thead>
+                  <tr><th>Date</th><th>Check in</th><th>Check out</th><th>Hours</th><th>Status</th></tr>
+                </thead>
+                <tbody id="my-attendance" aria-live="polite"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel employee-leave-panel" aria-labelledby="leave-form-heading">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Time away</span>
+                <h2 id="leave-form-heading">Apply for leave</h2>
+                <p>Working days only. Weekends and closed days never count.</p>
+              </div>
+            </div>
+            <form id="leave-form" class="form-stack" novalidate>
+              <label class="field">
+                <span class="field-label">Leave type</span>
+                <select name="type" required>
+                  <option value="">Choose a type</option>
+                  <option>Annual leave</option>
+                  <option>Sick leave</option>
+                  <option>Personal leave</option>
+                </select>
+                <small class="field-error" data-error-for="type"></small>
+              </label>
+              <div class="field-pair">
+                <label class="field">
+                  <span class="field-label">From</span>
+                  <input name="from" type="date" required>
+                  <small class="field-error" data-error-for="from"></small>
+                </label>
+                <label class="field">
+                  <span class="field-label">To</span>
+                  <input name="to" type="date" required>
+                  <small class="field-error" data-error-for="to"></small>
+                </label>
+              </div>
+              <div class="week-preview" id="leave-preview" aria-live="polite"></div>
+              <label class="field">
+                <span class="field-label">Reason</span>
+                <textarea id="leave-reason" name="reason" rows="3" maxlength="300" placeholder="A short note for your Admin…" required></textarea>
+                <div class="form-row-end"><small class="field-hint">Be specific enough to make the decision easy.</small><span class="char-count" data-char-count-for="leave-reason">0 / 300</span></div>
+                <small class="field-error" data-error-for="reason"></small>
+              </label>
+              <p class="form-message" id="leave-message" aria-live="polite"></p>
+              <button class="button button-secondary button-wide" type="submit">Submit request</button>
+            </form>
+          </section>
+
+          <section class="panel employee-leave-list-panel" aria-labelledby="my-leaves-heading">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Your history</span>
+                <h2 id="my-leaves-heading">My leave requests</h2>
+                <p>Every request, its status and your Admin’s note.</p>
+              </div>
+              <span class="insight-meta" id="leave-history-count">0 requests</span>
+            </div>
+            <div class="compact-list" id="my-leaves" aria-live="polite"></div>
+          </section>
+
+          <section class="panel helper-panel employee-helper-panel" aria-labelledby="helper-heading">
+            <div class="panel-heading panel-heading-wrap">
+              <div>
+                <span class="eyebrow">Ask your record</span>
+                <h2 id="helper-heading">Smart helper</h2>
+                <p>Answers drawn only from your own data.</p>
+              </div>
+              <span class="helper-icon" data-icon="sparkles"></span>
+            </div>
+            <div class="helper-history" id="helper-history">
+              <div class="helper-message helper-answer" id="helper-welcome">Ask about your leave balance, lateness or hours worked this week.</div>
+            </div>
+            <div class="helper-suggestions" id="helper-suggestions"></div>
+            <form class="helper-form" id="helper-form">
+              <label class="sr-only" for="helper-question">Ask the Smart Helper</label>
+              <input id="helper-question" name="question" placeholder="Ask about your record…" autocomplete="off" required>
+              <button class="icon-button" type="submit" aria-label="Send question"><span data-icon="arrowUp"></span></button>
+            </form>
+          </section>
+
+          <section class="panel employee-announcements-panel" aria-labelledby="announcement-heading">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Noticeboard</span>
+                <h2 id="announcement-heading">Team announcements</h2>
+                <p>The latest notes from your company.</p>
+              </div>
+              <span class="insight-meta">Visible to everyone</span>
+            </div>
+            <div class="announcement-list" id="announcement-list"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="sidebar-scrim" aria-hidden="true"></div>
+
+  <script src="../js/storage.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/employees.js"></script>
+  <script src="../js/attendance.js"></script>
+  <script src="../js/leave.js"></script>
+  <script src="../js/helper.js"></script>
+  <script src="../js/ui.js"></script>
+  <script>
+    (() => {
+      'use strict';
+      const app = window.HireSpera;
+      const user = app.auth.protect('employee');
+      if (!user) return;
+      app.ui.mountShell({ active: 'overview', breadcrumb: 'My dashboard' });
+
+      const today = app.today();
+      const clockNode = document.querySelector('#live-clock');
+      const dateNode = document.querySelector('#live-date');
+      const checkInButton = document.querySelector('#check-in');
+      const checkOutButton = document.querySelector('#check-out');
+      const leaveForm = document.querySelector('#leave-form');
+      const leaveMessage = document.querySelector('#leave-message');
+      const leavePreview = document.querySelector('#leave-preview');
+      const myLeaves = document.querySelector('#my-leaves');
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local time';
+
+      document.querySelector('#welcome-name').textContent = user.name.split(/\s+/)[0] || user.name;
+      document.querySelector('#greeting').textContent = app.ui.currentGreeting();
+
+      function isoDate(date) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      }
+
+      function updateClock() {
+        const now = new Date();
+        clockNode.textContent = new Intl.DateTimeFormat('en', { hour: 'numeric', minute: '2-digit' }).format(now);
+        dateNode.textContent = `Local time · ${timezone.replace(/_/g, ' ')}`;
+      }
+
+      function statusClass(status) {
+        if (status === 'On leave') return 'status-info';
+        if (status === 'Not checked in' || status === 'Office closed') return 'status-neutral';
+        return `status-${String(status).toLowerCase().replace(/\s+/g, '-')}`;
+      }
+
+      function approvedLeaveMap() {
+        const map = new Map();
+        app.leave.list(user.id)
+          .filter((leave) => leave.status === 'Approved')
+          .forEach((leave) => {
+            for (let date = new Date(`${leave.from}T12:00:00`); date <= new Date(`${leave.to}T12:00:00`); date.setDate(date.getDate() + 1)) {
+              if (app.attendance.isWorkingDay(isoDate(date))) map.set(isoDate(date), leave);
+            }
+          });
+        return map;
+      }
+
+      function todayState() {
+        const company = app.read(app.keys.COMPANY, {});
+        const working = app.attendance.isWorkingDay(today, company);
+        const record = app.attendance.statusOn(user.id, today);
+        const leave = approvedLeaveMap().get(today);
+        let status = 'Office closed';
+        if (working) {
+          if (record?.checkIn) status = record.status;
+          else if (leave) status = 'On leave';
+          else status = 'Not checked in';
+        }
+        return { company, working, record, leave, status };
+      }
+
+      function nextWorkingDay() {
+        const company = app.read(app.keys.COMPANY, {});
+        const date = new Date(`${today}T12:00:00`);
+        for (let index = 0; index < 14; index += 1) {
+          date.setDate(date.getDate() + 1);
+          if (app.attendance.isWorkingDay(isoDate(date), company)) {
+            return app.dateLabel(isoDate(date), { weekday: 'long', day: 'numeric', month: 'long' });
+          }
+        }
+        return 'No working day is configured yet';
+      }
+
+      function renderHero() {
+        const state = todayState();
+        document.querySelector('#today-label').textContent = new Intl.DateTimeFormat('en', {
+          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        }).format(app.parseDate(today));
+        document.querySelector('#today-status').textContent = state.status;
+        const pill = document.querySelector('#today-status-pill');
+        pill.textContent = state.status;
+        pill.className = `status ${statusClass(state.status)}`;
+        document.querySelector('#today-status-card').textContent = state.status === 'Not checked in' ? 'Not in' : state.status;
+        document.querySelector('#today-hours').textContent = app.attendance.workHours(state.record).toFixed(1);
+
+        checkInButton.disabled = !state.working || Boolean(state.record?.checkIn);
+        checkOutButton.disabled = !state.record?.checkIn || Boolean(state.record?.checkOut);
+        checkInButton.title = !state.working
+          ? 'The office is closed today'
+          : state.record?.checkIn
+            ? 'You have already checked in today'
+            : 'Record your check-in';
+        checkOutButton.title = !state.record?.checkIn
+          ? 'Check in before checking out'
+          : state.record?.checkOut
+            ? 'You have already checked out today'
+            : 'Record your check-out';
+
+        let copy;
+        if (!state.working) {
+          copy = `The office is closed today. Your next working day is ${nextWorkingDay()}.`;
+        } else if (state.record?.checkIn) {
+          copy = `You checked in at ${app.timeLabel(state.record.checkIn)}${state.record.checkOut ? ` and checked out at ${app.timeLabel(state.record.checkOut)}` : '. Check out when your day is done'}.`;
+        } else if (state.leave) {
+          copy = `You are on approved ${state.leave.type.toLowerCase()} today. Your normal check-in stays available if you need it.`;
+        } else {
+          const grace = Number(state.company.graceMinutes || 0);
+          copy = `A working day. Check in when you arrive; a check-in after ${app.timeLabel(state.company.officeStart || '09:00')} plus ${grace} minutes is marked Late.`;
+        }
+        document.querySelector('#hero-copy').textContent = copy;
+      }
+
+      function renderStats() {
+        const balance = app.leave.summary(user.id, new Date().getFullYear());
+        const now = new Date(`${today}T12:00:00`);
+        const month = app.attendance.monthSummary(user, now.getFullYear(), now.getMonth() + 1);
+        document.querySelector('#leave-balance').textContent = balance.remaining;
+        document.querySelector('#leave-balance-foot').textContent = `of ${balance.quota} approved days for ${new Date().getFullYear()}`;
+        document.querySelector('#month-attended').textContent = month.records.length;
+        document.querySelector('#month-attended-foot').textContent = month.workingDays
+          ? `${month.workingDays} working ${month.workingDays === 1 ? 'day' : 'days'} in this month`
+          : 'No working days in this month';
+      }
+
+      function recentWorkdays(limit = 10) {
+        const company = app.read(app.keys.COMPANY, {});
+        const created = user.createdAt || '';
+        const dates = [];
+        const cursor = new Date(`${today}T12:00:00`);
+        for (let guard = 0; guard < 120 && dates.length < limit; guard += 1) {
+          const iso = isoDate(cursor);
+          if ((!created || iso >= created) && app.attendance.isWorkingDay(iso, company)) dates.push(iso);
+          cursor.setDate(cursor.getDate() - 1);
+        }
+        return dates;
+      }
+
+      function renderAttendance() {
+        const leaves = approvedLeaveMap();
+        const dates = recentWorkdays(10);
+        const body = document.querySelector('#my-attendance');
+        if (!dates.length) {
+          body.innerHTML = '<tr><td colspan="5" class="empty-cell">No working days yet. Your record begins with your first configured workday.</td></tr>';
+          return;
+        }
+        body.innerHTML = dates.map((date) => {
+          const record = app.attendance.forEmployee(user.id).find((entry) => entry.date === date);
+          const leave = leaves.get(date);
+          let status;
+          if (record?.checkIn) status = record.status;
+          else if (leave) status = 'On leave';
+          else if (date === today) status = 'Not checked in';
+          else status = 'Absent';
+          return `<tr>
+            <td>${app.escape(app.dateLabel(date, { weekday: 'short', day: 'numeric', month: 'short' }))}</td>
+            <td>${record?.checkIn ? app.escape(app.timeLabel(record.checkIn)) : '—'}</td>
+            <td>${record?.checkOut ? app.escape(app.timeLabel(record.checkOut)) : '—'}</td>
+            <td>${record ? app.attendance.workHours(record).toFixed(1) : '0.0'}</td>
+            <td><span class="status ${statusClass(status)}">${app.escape(status)}</span></td>
+          </tr>`;
+        }).join('');
+      }
+
+      function renderLeaves() {
+        const items = app.leave.list(user.id);
+        document.querySelector('#leave-history-count').textContent = `${items.length} ${items.length === 1 ? 'request' : 'requests'}`;
+        myLeaves.innerHTML = items.length
+          ? items.map((leave) => `<article class="compact-item leave-compact">
+              <span class="compact-avatar">${app.escape(leave.type.charAt(0))}</span>
+              <span class="compact-copy">
+                <strong>${app.escape(leave.type)} · ${leave.days} working ${leave.days === 1 ? 'day' : 'days'}</strong>
+                <small>${app.dateLabel(leave.from)} – ${app.dateLabel(leave.to)}${leave.comment ? ` · Note: ${app.escape(leave.comment)}` : ''}</small>
+              </span>
+              <span class="status ${statusClass(leave.status)}">${app.escape(leave.status)}</span>
+            </article>`).join('')
+          : '<p class="empty-note">No requests yet. Your first request will appear here with its decision.</p>';
+      }
+
+      function renderAnnouncements() {
+        const company = app.read(app.keys.COMPANY, {});
+        const items = (company.announcements || []).slice().reverse().slice(0, 6);
+        document.querySelector('#announcement-list').innerHTML = items.length
+          ? items.map((item) => `<article class="announcement-item">
+              <p>${app.escape(item.text)}</p>
+              <div class="announcement-meta"><strong>${app.escape(item.author || 'Company')}</strong><span aria-hidden="true">·</span><span>${app.dateLabel(item.date)}</span></div>
+            </article>`).join('')
+          : '<p class="empty-note">No team announcements yet. This is where company notes will appear.</p>';
+      }
+
+      function updateLeavePreview() {
+        const from = leaveForm.elements.from.value;
+        const to = leaveForm.elements.to.value;
+        const balance = app.leave.summary(user.id, new Date().getFullYear());
+        if (!from && !to) {
+          leavePreview.innerHTML = `<span data-icon="calendar"></span><span>Choose your dates to see the working-day count. You have <strong>${balance.remaining} of ${balance.quota}</strong> days available.</span>`;
+          app.ui.hydrateIcons(leavePreview);
+          return;
+        }
+        if (!from || !to || from > to) {
+          leavePreview.innerHTML = `<span data-icon="calendar"></span><span>Choose a start and end date, in that order, to count working days.</span>`;
+          app.ui.hydrateIcons(leavePreview);
+          return;
+        }
+        const days = app.leave.workingDaysBetween(from, to);
+        leavePreview.innerHTML = `<span data-icon="${days ? 'calendarCheck' : 'info'}"></span><span>${days
+          ? `<strong>${days} working ${days === 1 ? 'day' : 'days'}</strong> will be requested. You have <strong>${balance.remaining} of ${balance.quota}</strong> days available${days > balance.remaining ? ' — this is more than your remaining balance' : ''}.`
+          : 'There are no configured working days in this range. Choose different dates.'}</span>`;
+        app.ui.hydrateIcons(leavePreview);
+      }
+
+      function renderHelper() {
+        const balance = app.leave.summary(user.id, new Date().getFullYear());
+        const state = todayState();
+        const todayText = state.record?.checkIn
+          ? `You are marked ${state.record.status.toLowerCase()} today.`
+          : state.working
+            ? 'You have not checked in yet today.'
+            : 'Today is not a working day.';
+        document.querySelector('#helper-welcome').textContent = `You have ${balance.remaining} of ${balance.quota} leave days left for ${new Date().getFullYear()}. ${todayText} Ask about your balance, lateness or hours worked this week.`;
+        document.querySelector('#helper-suggestions').innerHTML = app.helper.suggestions(user)
+          .map((suggestion) => `<button class="helper-chip" type="button" data-helper-suggestion>${app.escape(suggestion)}</button>`)
+          .join('');
+      }
+
+      function renderAll() {
+        renderHero();
+        renderStats();
+        renderAttendance();
+        renderLeaves();
+        renderAnnouncements();
+        renderHelper();
+        updateLeavePreview();
+      }
+
+      function handleAttendanceChange() {
+        renderHero();
+        renderStats();
+        renderAttendance();
+        renderHelper();
+      }
+
+      checkInButton.addEventListener('click', () => {
+        try {
+          const record = app.attendance.checkIn(user.id);
+          const late = record.status === 'Late';
+          app.ui.toast(late ? 'Checked in. Your arrival is after the grace period.' : 'Checked in. Your day has started.', late ? 'info' : 'success');
+          handleAttendanceChange();
+          window.dispatchEvent(new CustomEvent('hirespera:attendance-changed'));
+        } catch (error) {
+          app.ui.toast(error.message, 'error');
+          handleAttendanceChange();
+        }
+      });
+
+      checkOutButton.addEventListener('click', () => {
+        try {
+          const record = app.attendance.checkOut(user.id);
+          app.ui.toast(record.status === 'Half Day' ? 'Checked out. Under five hours is saved as a half day.' : 'Checked out. Your hours are saved.', record.status === 'Half Day' ? 'info' : 'success');
+          handleAttendanceChange();
+          window.dispatchEvent(new CustomEvent('hirespera:attendance-changed'));
+        } catch (error) {
+          app.ui.toast(error.message, 'error');
+          handleAttendanceChange();
+        }
+      });
+
+      [leaveForm.elements.from, leaveForm.elements.to].forEach((input) => {
+        input.min = today;
+        input.addEventListener('change', () => {
+          if (leaveForm.elements.from.value) {
+            leaveForm.elements.to.min = leaveForm.elements.from.value > today ? leaveForm.elements.from.value : today;
+            if (leaveForm.elements.to.value && leaveForm.elements.to.value < leaveForm.elements.from.value) leaveForm.elements.to.value = '';
+          }
+          updateLeavePreview();
+        });
+      });
+      updateLeavePreview();
+
+      leaveForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        app.ui.clearErrors(leaveForm);
+        const data = Object.fromEntries(new FormData(leaveForm));
+        if (!data.type) app.ui.setFieldError(leaveForm, 'type', 'Choose a leave type.');
+        if (!data.from) app.ui.setFieldError(leaveForm, 'from', 'Choose a start date.');
+        if (!data.to) app.ui.setFieldError(leaveForm, 'to', 'Choose an end date.');
+        if (!String(data.reason || '').trim()) app.ui.setFieldError(leaveForm, 'reason', 'Add a short reason for your request.');
+        if (!data.type || !data.from || !data.to || !String(data.reason || '').trim()) {
+          app.ui.focusFirstError(leaveForm);
+          return;
+        }
+        try {
+          app.leave.apply(user.id, data);
+          leaveForm.reset();
+          leaveForm.elements.from.min = today;
+          leaveForm.elements.to.min = today;
+          document.querySelector('[data-char-count-for="leave-reason"]').textContent = '0 / 300';
+          app.ui.setFormMessage(leaveMessage, 'Request submitted. You will see the decision here.', 'success');
+          app.ui.toast('Leave request submitted.');
+          renderLeaves();
+          renderStats();
+          updateLeavePreview();
+          renderHelper();
+        } catch (error) {
+          const field = error.field || 'from';
+          app.ui.setFieldError(leaveForm, field, error.message);
+          app.ui.setFormMessage(leaveMessage, 'Check the highlighted field and try again.', 'error');
+          app.ui.focusFirstError(leaveForm);
+        }
+      });
+
+      app.ui.bindHelper(user);
+      window.addEventListener('hirespera:attendance-changed', handleAttendanceChange);
+      updateClock();
+      const clockTimer = window.setInterval(updateClock, 30000);
+      window.addEventListener('pagehide', () => window.clearInterval(clockTimer));
+      renderAll();
+      app.ui.hydrateIcons();
+    })();
+  </script>
+  <script src="../js/bonus.js"></script>
+</body>
+</html>

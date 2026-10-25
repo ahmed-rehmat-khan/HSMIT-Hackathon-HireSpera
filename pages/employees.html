@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07070d">
+  <title>People | HireSpera</title>
+  <meta name="description" content="A clear, searchable directory of your team, with private logins and attendance-aware payroll.">
+  <script>
+    try {
+      var savedTheme = localStorage.getItem('hcm_theme');
+      document.documentElement.dataset.theme = savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
+    } catch (error) {
+      document.documentElement.dataset.theme = 'dark';
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="../assets/brand-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="app-shell">
+    <aside id="app-sidebar" class="sidebar"></aside>
+    <main class="main-content" id="main-content">
+      <header id="app-topbar" class="topbar"></header>
+      <div class="page-wrap">
+        <section class="page-heading" aria-labelledby="page-title">
+          <div>
+            <span class="eyebrow">Your people</span>
+            <h1 id="page-title">The team directory</h1>
+            <p>Every employee, their role, their login and the salary their attendance is measured against.</p>
+          </div>
+          <div class="heading-actions">
+            <span class="heading-meta"><span class="meta-number" id="employee-total">0</span><span id="employee-total-label">people</span></span>
+            <button class="button button-secondary" type="button" data-export-employees>
+              <span data-icon="download"></span>Export CSV
+            </button>
+            <button class="button button-primary" type="button" id="add-employee">
+              <span data-icon="userPlus"></span>Add employee
+            </button>
+          </div>
+        </section>
+
+        <section class="panel directory-panel" aria-labelledby="directory-heading">
+          <div class="directory-toolbar">
+            <div class="toolbar-copy">
+              <h2 id="directory-heading">Team directory</h2>
+              <p id="employee-count">0 people</p>
+            </div>
+            <div class="filter-row">
+              <label class="search-field">
+                <span data-icon="search"></span>
+                <span class="sr-only">Search employees</span>
+                <input id="employee-search" type="search" placeholder="Search name, email, role…" autocomplete="off">
+              </label>
+              <label class="sr-only" for="department-filter">Filter by department</label>
+              <select id="department-filter">
+                <option value="">All departments</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Department</th>
+                  <th>Role</th>
+                  <th>Monthly salary</th>
+                  <th>Joined</th>
+                  <th><span class="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody id="employee-rows" aria-live="polite"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div class="sidebar-scrim" aria-hidden="true"></div>
+
+  <dialog class="modal modal-large" id="employee-dialog" aria-labelledby="employee-dialog-title">
+    <form id="employee-form" class="form-stack" novalidate>
+      <div class="modal-heading">
+        <div>
+          <span class="eyebrow">Team directory</span>
+          <h2 id="employee-dialog-title">Add employee</h2>
+          <p id="employee-dialog-copy">Create the profile and a private login for a new team member.</p>
+        </div>
+        <button class="icon-button" type="button" data-dialog-close aria-label="Close employee form" data-icon="x"></button>
+      </div>
+      <input name="employeeId" type="hidden">
+      <div class="field-pair">
+        <label class="field">
+          <span class="field-label">Full name</span>
+          <input name="name" autocomplete="name" placeholder="e.g. Ayesha Khan" required>
+          <small class="field-error" data-error-for="name"></small>
+        </label>
+        <label class="field">
+          <span class="field-label">Work email</span>
+          <input name="email" type="email" autocomplete="email" placeholder="ayesha@company.com" required>
+          <small class="field-error" data-error-for="email"></small>
+        </label>
+      </div>
+      <div class="field-pair">
+        <label class="field">
+          <span class="field-label">Department</span>
+          <input name="department" list="department-options" placeholder="e.g. Product" required>
+          <datalist id="department-options"></datalist>
+          <small class="field-error" data-error-for="department"></small>
+        </label>
+        <label class="field">
+          <span class="field-label">Job role</span>
+          <input name="jobTitle" placeholder="e.g. Product Designer" required>
+          <small class="field-error" data-error-for="jobTitle"></small>
+        </label>
+      </div>
+      <div class="field-pair">
+        <label class="field">
+          <span class="field-label">Monthly salary (PKR)</span>
+          <input name="salary" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g. 85000" required>
+          <small class="field-error" data-error-for="salary"></small>
+        </label>
+        <label class="field">
+          <span class="field-label" id="employee-password-label">Temporary password</span>
+          <span class="password-wrap">
+            <input name="password" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters">
+            <button class="password-toggle" type="button" data-password-toggle aria-label="Show password" data-icon="eye"></button>
+          </span>
+          <small class="field-hint" id="employee-password-hint">The employee signs in with this email and password. They can change it later.</small>
+          <small class="field-error" data-error-for="password"></small>
+        </label>
+      </div>
+      <p class="form-message" id="employee-message" aria-live="polite"></p>
+      <div class="modal-actions">
+        <button class="button button-secondary" type="button" data-dialog-close>Cancel</button>
+        <button class="button button-primary" type="submit">Save employee</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="../js/storage.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/employees.js"></script>
+  <script src="../js/attendance.js"></script>
+  <script src="../js/leave.js"></script>
+  <script src="../js/helper.js"></script>
+  <script src="../js/ui.js"></script>
+  <script>
+    (() => {
+      'use strict';
+      const app = window.HireSpera;
+      const user = app.auth.protect('admin');
+      if (!user) return;
+      app.ui.mountShell({ active: 'employees', breadcrumb: 'People' });
+
+      const dialog = document.querySelector('#employee-dialog');
+      const form = document.querySelector('#employee-form');
+      const search = document.querySelector('#employee-search');
+      const departmentFilter = document.querySelector('#department-filter');
+      const departmentOptions = document.querySelector('#department-options');
+      const tableBody = document.querySelector('#employee-rows');
+      const message = document.querySelector('#employee-message');
+      const submitButton = form.querySelector('button[type="submit"]');
+      let editingId = null;
+
+      function setDialogMode(employee = null) {
+        editingId = employee?.id || null;
+        form.reset();
+        app.ui.clearErrors(form);
+        app.ui.setFormMessage(message, '', 'info');
+        form.elements.employeeId.value = employee?.id || '';
+        document.querySelector('#employee-dialog-title').textContent = employee ? 'Edit employee' : 'Add employee';
+        document.querySelector('#employee-dialog-copy').textContent = employee
+          ? 'Update the profile. Leave the password empty to keep the current one.'
+          : 'Create the profile and a private login for a new team member.';
+        document.querySelector('#employee-password-label').textContent = employee ? 'New password (optional)' : 'Temporary password';
+        document.querySelector('#employee-password-hint').textContent = employee
+          ? 'Only fill this in if the employee needs a new password. At least 8 characters.'
+          : 'The employee signs in with this email and password. They can change it later.';
+        form.elements.password.required = !employee;
+        submitButton.textContent = employee ? 'Save changes' : 'Add employee';
+        if (employee) {
+          form.elements.name.value = employee.name || '';
+          form.elements.email.value = employee.email || '';
+          form.elements.department.value = employee.department || '';
+          form.elements.jobTitle.value = employee.jobTitle || '';
+          form.elements.salary.value = employee.salary ?? '';
+        }
+      }
+
+      function openDialog(employee = null) {
+        setDialogMode(employee);
+        dialog.showModal();
+        window.setTimeout(() => form.elements.name.focus({ preventScroll: true }), 60);
+      }
+
+      function allPeople() {
+        return app.employees.list();
+      }
+
+      function renderDepartmentOptions(selected = departmentFilter.value) {
+        const departments = app.employees.departments();
+        departmentFilter.innerHTML = `<option value="">All departments</option>${departments
+          .map((department) => `<option value="${app.escape(department)}">${app.escape(department)}</option>`)
+          .join('')}`;
+        departmentFilter.value = departments.includes(selected) ? selected : '';
+        departmentOptions.innerHTML = departments
+          .map((department) => `<option value="${app.escape(department)}"></option>`)
+          .join('');
+      }
+
+      function renderEmployees() {
+        const all = allPeople();
+        const people = app.employees.list({ search: search.value, department: departmentFilter.value });
+        const departments = new Set(all.map((person) => person.department).filter(Boolean));
+        document.querySelector('#employee-total').textContent = all.length;
+        document.querySelector('#employee-total-label').textContent = all.length === 1 ? 'person' : 'people';
+        document.querySelector('#employee-count').textContent = all.length
+          ? `${all.length} ${all.length === 1 ? 'person' : 'people'} across ${departments.size} ${departments.size === 1 ? 'department' : 'departments'}`
+          : 'No one in the directory yet';
+
+        if (!all.length) {
+          tableBody.innerHTML = `<tr><td colspan="6" class="empty-cell">The directory is empty. Add the first employee to create their private login.</td></tr>`;
+          return;
+        }
+        if (!people.length) {
+          tableBody.innerHTML = `<tr><td colspan="6" class="empty-cell">No people match this view. Try a different search or department.</td></tr>`;
+          return;
+        }
+
+        tableBody.innerHTML = people.map((person) => `<tr>
+          <td>
+            <div class="person-cell table-person">
+              <span class="avatar avatar-small">${app.escape(app.initials(person.name))}</span>
+              <span><strong>${app.escape(person.name)}</strong><small>${app.escape(person.email)}</small></span>
+            </div>
+          </td>
+          <td>${app.escape(person.department || '—')}</td>
+          <td>${app.escape(person.jobTitle || '—')}</td>
+          <td><strong>${app.money(person.salary)}</strong></td>
+          <td><span class="muted">${person.createdAt ? app.dateLabel(person.createdAt, { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}</span></td>
+          <td>
+            <div class="table-actions">
+              <button class="icon-button action-edit" type="button" data-edit="${app.escape(person.id)}" aria-label="Edit ${app.escape(person.name)}" title="Edit">
+                <span data-icon="pencil"></span>
+              </button>
+              <a class="icon-button" href="payslip.html?employee=${encodeURIComponent(person.id)}" aria-label="View ${app.escape(person.name)} payslip" title="Payslip">
+                <span data-icon="receipt"></span>
+              </a>
+              <button class="icon-button action-delete" type="button" data-delete="${app.escape(person.id)}" aria-label="Delete ${app.escape(person.name)}" title="Delete">
+                <span data-icon="trash"></span>
+              </button>
+            </div>
+          </td>
+        </tr>`).join('');
+        app.ui.hydrateIcons(tableBody);
+      }
+
+      document.querySelector('#add-employee').addEventListener('click', () => openDialog());
+      search.addEventListener('input', renderEmployees);
+      departmentFilter.addEventListener('change', renderEmployees);
+
+      tableBody.addEventListener('click', async (event) => {
+        const editButton = event.target.closest('[data-edit]');
+        if (editButton) {
+          const person = allPeople().find((item) => item.id === editButton.dataset.edit);
+          if (person) openDialog(person);
+          return;
+        }
+        const deleteButton = event.target.closest('[data-delete]');
+        if (!deleteButton) return;
+        const person = allPeople().find((item) => item.id === deleteButton.dataset.delete);
+        if (!person) return;
+        const accepted = await app.ui.confirm({
+          title: `Remove ${person.name}?`,
+          message: 'This deletes their profile, login, attendance and leave records. It cannot be undone.',
+          confirmLabel: 'Remove employee',
+          tone: 'danger',
+          iconName: 'trash'
+        });
+        if (!accepted) return;
+        try {
+          app.employees.remove(person.id);
+          app.ui.toast(`${person.name} was removed from the directory.`);
+          const selected = departmentFilter.value;
+          renderDepartmentOptions(selected);
+          renderEmployees();
+        } catch (error) {
+          app.ui.toast(error.message, 'error');
+        }
+      });
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        app.ui.clearErrors(form);
+        const data = Object.fromEntries(new FormData(form));
+        const wasEditing = Boolean(editingId);
+        try {
+          const employee = app.employees.save(data, editingId);
+          dialog.close();
+          const selected = departmentFilter.value;
+          renderDepartmentOptions(selected);
+          renderEmployees();
+          app.ui.toast(wasEditing ? `${employee.name} was updated.` : `${employee.name} was added. They can now sign in.`);
+        } catch (error) {
+          const field = error.field;
+          if (field) app.ui.setFieldError(form, field, error.message);
+          app.ui.setFormMessage(message, field ? 'Check the highlighted field and try again.' : error.message, 'error');
+          app.ui.focusFirstError(form);
+        }
+      });
+
+      dialog.addEventListener('close', () => {
+        form.reset();
+        app.ui.clearErrors(form);
+        app.ui.setFormMessage(message, '', 'info');
+        editingId = null;
+      });
+
+      renderDepartmentOptions();
+      renderEmployees();
+      app.ui.hydrateIcons();
+    })();
+  </script>
+  <script src="../js/bonus.js"></script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07070d">
+  <title>HireSpera | Build teams. Build tomorrow.</title>
+  <meta name="description" content="A calm, private people workspace for attendance, leave, people records and monthly pay.">
+  <script>
+    try {
+      var savedTheme = localStorage.getItem('hcm_theme');
+      document.documentElement.dataset.theme = savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
+    } catch (error) {
+      document.documentElement.dataset.theme = 'dark';
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/brand-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#landing-hero">Skip to content</a>
+  <main class="landing-page" id="landing-page">
+    <header class="landing-nav">
+      <a class="brand-lockup" href="index.html" aria-label="HireSpera home">
+        <img src="assets/brand-mark.svg" alt="" class="brand-mark" width="40" height="40">
+        <span class="brand-copy"><strong>HireSpera</strong><small>Build teams. Build tomorrow.</small></span>
+      </a>
+      <nav class="landing-nav-links" aria-label="Landing navigation">
+        <a href="#workspace-roles">Workspaces</a>
+        <a href="#workspace-roles">How it works</a>
+      </nav>
+      <div class="landing-nav-actions">
+        <span data-theme-slot></span>
+        <button class="button button-secondary" type="button" id="nav-signin">Sign in</button>
+      </div>
+    </header>
+
+    <section class="landing-hero" id="landing-hero" aria-labelledby="landing-title">
+      <div class="landing-copy">
+        <span class="eyebrow">People, in good hands</span>
+        <h1 id="landing-title">
+          <span class="hero-line">Build teams.</span>
+          <span class="hero-line hero-line-accent">Build tomorrow.</span>
+        </h1>
+        <p class="landing-lede">A calm, private desk for the work behind a good team. Attendance, leave, people records and monthly pay — clear enough to act on, quiet enough to think.</p>
+        <div class="landing-cta-row">
+          <a class="button button-primary" href="#workspace-roles">Enter your workspace <span data-icon="arrowRight"></span></a>
+          <a class="button button-ghost" href="#how-it-works">See how it works <span data-icon="arrowDown"></span></a>
+        </div>
+        <div class="landing-principles" aria-label="Workspace principles">
+          <span><span data-icon="shield"></span>Private to this browser</span>
+          <span><span data-icon="users"></span>Role-aware by design</span>
+          <span><span data-icon="printer"></span>Print-ready payslips</span>
+        </div>
+      </div>
+
+      <div class="landing-artifact" aria-label="A visual map of the HireSpera workspace">
+        <span class="orbit orbit-one" aria-hidden="true"></span>
+        <span class="orbit orbit-two" aria-hidden="true"></span>
+        <span class="orbit orbit-three" aria-hidden="true"></span>
+        <div class="hero-core">
+          <img src="assets/brand-mark.svg" alt="HireSpera brand mark" width="86" height="86">
+          <strong>HireSpera</strong>
+          <small>People workspace</small>
+        </div>
+        <div class="orbit-node node-one"><span data-icon="calendarCheck"></span>Presence, in context</div>
+        <div class="orbit-node node-two"><span data-icon="mapPin"></span>Leave balances</div>
+        <div class="orbit-node node-three"><span data-icon="wallet"></span>Payslip, ready</div>
+        <div class="hero-slate">
+          <div class="hero-slate-head"><span>People ledger</span><span class="live-chip"><span class="live-dot" aria-hidden="true"></span>In sync</span></div>
+          <div class="hero-slate-row"><span data-icon="calendar"></span><span>Attendance</span><b>Daily</b></div>
+          <div class="hero-slate-row"><span data-icon="briefcase"></span><span>Time away</span><b>Balanced</b></div>
+          <div class="hero-slate-row"><span data-icon="receipt"></span><span>Monthly pay</span><b>Print-ready</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-access" id="workspace-roles" aria-labelledby="workspace-title">
+      <div class="landing-section-heading">
+        <div>
+          <span class="eyebrow">Two ways in</span>
+          <h2 id="workspace-title">Where do you sit?</h2>
+        </div>
+        <p>Every role sees exactly what it needs. Admin runs the company; employees keep their own record.</p>
+      </div>
+      <div class="role-choice-grid">
+        <article class="role-choice role-choice-admin">
+          <span class="role-index">01 · Company team</span>
+          <h3>Admin workspace</h3>
+          <p>Set the rules, look after your people, decide on leave and see the shape of the whole company.</p>
+          <ul class="role-features">
+            <li><span data-icon="checkCircle"></span>People &amp; access</li>
+            <li><span data-icon="checkCircle"></span>Leave decisions</li>
+            <li><span data-icon="checkCircle"></span>Company settings</li>
+          </ul>
+          <button class="button button-primary" type="button" data-enter-role="admin">
+            <span id="admin-entry-label">Admin sign in</span><span data-icon="arrowRight"></span>
+          </button>
+        </article>
+        <article class="role-choice role-choice-employee">
+          <span class="role-index">02 · Your workday</span>
+          <h3>Employee workspace</h3>
+          <p>Check in, request time away, read the latest note from your team and keep your payslip close.</p>
+          <ul class="role-features">
+            <li><span data-icon="checkCircle"></span>Your attendance</li>
+            <li><span data-icon="checkCircle"></span>Leave balance</li>
+            <li><span data-icon="checkCircle"></span>Your payslip</li>
+          </ul>
+          <button class="button button-secondary" type="button" data-enter-role="employee">
+            <span>Employee sign in</span><span data-icon="arrowRight"></span>
+          </button>
+        </article>
+      </div>
+      <p class="landing-storage-note"><span data-icon="info"></span>No cloud account and no server. Company and employee data stays in this browser, ready for the next time you open the workspace.</p>
+    </section>
+
+    <section class="landing-access" id="how-it-works" aria-labelledby="how-title" style="border-top:0;padding-top:0;">
+      <div class="landing-section-heading">
+        <div>
+          <span class="eyebrow">A smaller surface area</span>
+          <h2 id="how-title">The work, without the noise.</h2>
+        </div>
+        <p>Six focused areas replace the usual sprawl of HR tabs. Nothing you have to configure twice.</p>
+      </div>
+      <div class="role-choice-grid">
+        <article class="role-choice">
+          <span class="role-index">The daily rhythm</span>
+          <h3>Presence &amp; time away</h3>
+          <p>One check-in per working day, late arrivals measured against the office rule, leave counted in working days, and balances that stay honest.</p>
+          <ul class="role-features">
+            <li><span data-icon="checkCircle"></span>Late &amp; half-day logic</li>
+            <li><span data-icon="checkCircle"></span>Working-day leave</li>
+            <li><span data-icon="checkCircle"></span>Quota guardrails</li>
+          </ul>
+        </article>
+        <article class="role-choice">
+          <span class="role-index">The monthly close</span>
+          <h3>People &amp; pay</h3>
+          <p>Employee records with private sign-in, a searchable directory, and a payslip calculated from the month you actually worked.</p>
+          <ul class="role-features">
+            <li><span data-icon="checkCircle"></span>Role privacy</li>
+            <li><span data-icon="checkCircle"></span>Per-day maths</li>
+            <li><span data-icon="checkCircle"></span>Print or save PDF</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="access-panel hidden" id="access-panel" aria-labelledby="auth-heading">
+      <button class="back-link" type="button" id="back-to-landing"><span data-icon="arrowLeft"></span>Back to HireSpera</button>
+      <div class="access-layout">
+        <aside class="access-context">
+          <div>
+            <span class="role-pill" id="access-role-label">Admin workspace</span>
+            <span class="eyebrow no-rule">A clear beginning</span>
+            <h2 id="context-heading">Your team starts here.</h2>
+            <p id="context-copy">Create your company, then invite the people who make it work. Everything stays close to hand.</p>
+            <ul class="access-facts">
+              <li><span data-icon="shield"></span>Admin and employee access stay separate.</li>
+              <li><span data-icon="building"></span>Company rules set the attendance and leave maths.</li>
+              <li><span data-icon="mapPin"></span>Saved in this browser. No backend, no database.</li>
+            </ul>
+          </div>
+          <span class="access-context-foot"><span class="live-dot" aria-hidden="true"></span>Ready when you are</span>
+        </aside>
+        <div class="access-card">
+          <span class="eyebrow" id="auth-eyebrow">Welcome back</span>
+          <h2 id="auth-heading">Sign in to your workspace</h2>
+          <p id="auth-description">Use your work email to continue.</p>
+
+          <form id="login-form" class="form-stack" novalidate>
+            <label class="field">
+              <span class="field-label">Work email</span>
+              <input name="email" type="email" autocomplete="username" placeholder="you@company.com" required>
+              <small class="field-error" data-error-for="email"></small>
+            </label>
+            <label class="field">
+              <span class="field-label">Password</span>
+              <span class="password-wrap">
+                <input name="password" type="password" autocomplete="current-password" placeholder="Your password" required>
+                <button class="password-toggle" type="button" data-password-toggle aria-label="Show password" data-icon="eye"></button>
+              </span>
+              <small class="field-error" data-error-for="password"></small>
+            </label>
+            <p class="form-message" id="login-message" aria-live="polite"></p>
+            <button class="button button-primary button-wide" type="submit">Sign in <span data-icon="arrowRight"></span></button>
+          </form>
+
+          <form id="setup-form" class="form-stack hidden" novalidate>
+            <label class="field">
+              <span class="field-label">Company name</span>
+              <input name="companyName" autocomplete="organization" placeholder="e.g. Northstar Labs" required>
+              <small class="field-error" data-error-for="companyName"></small>
+            </label>
+            <div class="field-pair">
+              <label class="field">
+                <span class="field-label">Your name</span>
+                <input name="name" autocomplete="name" placeholder="Full name" required>
+                <small class="field-error" data-error-for="name"></small>
+              </label>
+              <label class="field">
+                <span class="field-label">Work email</span>
+                <input name="email" type="email" autocomplete="email" placeholder="you@company.com" required>
+                <small class="field-error" data-error-for="email"></small>
+              </label>
+            </div>
+            <label class="field">
+              <span class="field-label">Create password</span>
+              <span class="password-wrap">
+                <input name="password" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required>
+                <button class="password-toggle" type="button" data-password-toggle aria-label="Show password" data-icon="eye"></button>
+              </span>
+              <small class="field-error" data-error-for="password"></small>
+            </label>
+            <label class="field">
+              <span class="field-label">Confirm password</span>
+              <span class="password-wrap">
+                <input name="confirmPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Repeat password" required>
+                <button class="password-toggle" type="button" data-password-toggle aria-label="Show password" data-icon="eye"></button>
+              </span>
+              <small class="field-error" data-error-for="confirmPassword"></small>
+            </label>
+            <p class="form-message" id="setup-message" aria-live="polite"></p>
+            <button class="button button-primary button-wide" type="submit">Create workspace <span data-icon="arrowRight"></span></button>
+          </form>
+
+          <p class="form-message hidden" id="access-message" aria-live="polite"></p>
+          <p class="access-note" id="auth-note">Your workspace data stays in this browser. Sign in with the account your Admin created for you.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="landing-footer">
+      <span>HireSpera · People workspace</span>
+      <span>HTML · CSS · Vanilla JS · Local-first</span>
+      <span>Saylani Hackathon · Beginner Track</span>
+    </footer>
+  </main>
+
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    (() => {
+      'use strict';
+      const app = window.HireSpera;
+      app.auth.protect();
+
+      const company = app.read(app.keys.COMPANY);
+      const isSetup = !company;
+      const landingPage = document.querySelector('#landing-page');
+      const accessPanel = document.querySelector('#access-panel');
+      const hero = document.querySelector('.landing-hero');
+      const roles = document.querySelector('#workspace-roles');
+      const how = document.querySelector('#how-it-works');
+      const nav = document.querySelector('.landing-nav');
+      const navSignin = document.querySelector('#nav-signin');
+      const loginForm = document.querySelector('#login-form');
+      const setupForm = document.querySelector('#setup-form');
+      const accessMessage = document.querySelector('#access-message');
+      let selectedRole = 'admin';
+
+      document.querySelector('#admin-entry-label').textContent = isSetup ? 'Create company workspace' : 'Admin sign in';
+
+      function resetMessages() {
+        app.ui.clearErrors(loginForm);
+        app.ui.clearErrors(setupForm);
+        app.ui.setFormMessage(accessMessage, '', 'info');
+      }
+
+      function openAccess(role = 'admin') {
+        selectedRole = role;
+        resetMessages();
+        const adminSetup = isSetup && role === 'admin';
+        const employeeBlocked = isSetup && role === 'employee';
+        hero.classList.add('hidden');
+        roles.classList.add('hidden');
+        how.classList.add('hidden');
+        nav.classList.add('hidden');
+        accessPanel.classList.remove('hidden');
+        loginForm.classList.toggle('hidden', adminSetup || employeeBlocked);
+        setupForm.classList.toggle('hidden', !adminSetup);
+        document.querySelector('#access-role-label').textContent = adminSetup ? 'First-run setup' : role === 'admin' ? 'Admin workspace' : 'Employee workspace';
+        document.querySelector('#context-heading').textContent = adminSetup ? 'Your team starts here.' : role === 'admin' ? 'The company, in one clear view.' : 'Your workday, held together.';
+        document.querySelector('#context-copy').textContent = adminSetup
+          ? 'Create your company and administrator account. Your workspace is saved in this browser, with no server in between.'
+          : role === 'admin'
+            ? 'People, attendance, leave decisions and pay. Sign in to see the whole shape of the company.'
+            : 'Your attendance, leave balance and payslip. Sign in to keep your own record close.';
+        document.querySelector('#auth-eyebrow').textContent = adminSetup ? 'A quiet beginning' : role === 'admin' ? 'Welcome back' : 'Your workspace';
+        document.querySelector('#auth-heading').textContent = adminSetup ? 'Set up your company' : `${role === 'admin' ? 'Admin' : 'Employee'} sign in`;
+        document.querySelector('#auth-description').textContent = adminSetup ? 'A few details and your workspace is ready.' : `Sign in to continue to the ${role} workspace.`;
+        document.querySelector('#auth-note').textContent = adminSetup
+          ? 'Your company data stays in this browser. You can revisit these details from Company settings.'
+          : 'Use the account your Admin created for you. Passwords and records are stored in this browser only.';
+        if (employeeBlocked) {
+          document.querySelector('#auth-heading').textContent = 'Your Admin goes first';
+          document.querySelector('#auth-description').textContent = 'This workspace has not been created yet.';
+          document.querySelector('#auth-eyebrow').textContent = 'One step before you';
+          app.ui.setFormMessage(accessMessage, 'Ask your Admin to create the company and your employee login. Then come back here to sign in.', 'info');
+          document.querySelector('#auth-note').textContent = 'No company exists in this browser yet. The Admin sets it up from the Admin workspace.';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.setTimeout(() => (adminSetup ? setupForm.querySelector('input') : loginForm.querySelector('input'))?.focus({ preventScroll: true }), 260);
+      }
+
+      function closeAccess() {
+        accessPanel.classList.add('hidden');
+        hero.classList.remove('hidden');
+        roles.classList.remove('hidden');
+        how.classList.remove('hidden');
+        nav.classList.remove('hidden');
+        resetMessages();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      document.querySelectorAll('[data-enter-role]').forEach((button) => {
+        button.addEventListener('click', () => openAccess(button.dataset.enterRole));
+      });
+      navSignin.addEventListener('click', () => openAccess(isSetup ? 'admin' : 'admin'));
+      document.querySelector('#back-to-landing').addEventListener('click', closeAccess);
+
+      loginForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        app.ui.clearErrors(loginForm);
+        const data = Object.fromEntries(new FormData(loginForm));
+        const email = String(data.email || '').trim();
+        const password = String(data.password || '');
+        let valid = true;
+        if (!email) { app.ui.setFieldError(loginForm, 'email', 'Enter your work email.'); valid = false; }
+        else if (!app.emailValid(email)) { app.ui.setFieldError(loginForm, 'email', 'Enter a valid email address.'); valid = false; }
+        if (!password) { app.ui.setFieldError(loginForm, 'password', 'Enter your password.'); valid = false; }
+        if (!valid) { app.ui.focusFirstError(loginForm); return; }
+        const account = app.read(app.keys.USERS, []).find((user) => user.email.toLowerCase() === email.toLowerCase());
+        if (account && account.role !== selectedRole) {
+          app.ui.setFieldError(loginForm, 'email', `This account belongs to the ${account.role === 'admin' ? 'Admin' : 'Employee'} workspace. Go back and choose it.`);
+          app.ui.focusFirstError(loginForm);
+          return;
+        }
+        const submitButton = loginForm.querySelector('button[type="submit"]');
+        app.ui.setButtonLoading(submitButton, true, 'Signing in…');
+        window.setTimeout(() => {
+          try {
+            const user = app.auth.login(email, password);
+            location.href = user.role === 'admin' ? 'pages/admin.html' : 'pages/employee.html';
+          } catch (error) {
+            app.ui.setButtonLoading(submitButton, false);
+            app.ui.setFieldError(loginForm, error.field || 'password', error.message);
+            app.ui.focusFirstError(loginForm);
+          }
+        }, 220);
+      });
+
+      setupForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        app.ui.clearErrors(setupForm);
+        const data = Object.fromEntries(new FormData(setupForm));
+        let valid = true;
+        if (!String(data.companyName || '').trim()) { app.ui.setFieldError(setupForm, 'companyName', 'Enter your company name.'); valid = false; }
+        if (!String(data.name || '').trim()) { app.ui.setFieldError(setupForm, 'name', 'Enter your full name.'); valid = false; }
+        if (!app.emailValid(data.email)) { app.ui.setFieldError(setupForm, 'email', 'Enter a valid work email.'); valid = false; }
+        if (String(data.password || '').length < 8) { app.ui.setFieldError(setupForm, 'password', 'Use at least 8 characters.'); valid = false; }
+        if (data.confirmPassword !== data.password) { app.ui.setFieldError(setupForm, 'confirmPassword', 'Passwords do not match.'); valid = false; }
+        if (!valid) { app.ui.focusFirstError(setupForm); return; }
+        const submitButton = setupForm.querySelector('button[type="submit"]');
+        app.ui.setButtonLoading(submitButton, true, 'Creating workspace…');
+        window.setTimeout(() => {
+          try {
+            app.auth.setup(data);
+            location.href = 'pages/admin.html';
+          } catch (error) {
+            app.ui.setButtonLoading(submitButton, false);
+            app.ui.setFieldError(setupForm, error.field || 'companyName', error.message);
+            app.ui.focusFirstError(setupForm);
+          }
+        }, 280);
+      });
+
+      app.ui.hydrateIcons();
+    })();
+  </script>
+</body>
+</html>

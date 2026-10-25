@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07070d">
+  <title>Overview | HireSpera</title>
+  <meta name="description" content="A clear daily view of attendance, leave decisions and company notes in HireSpera.">
+  <script>
+    try {
+      var savedTheme = localStorage.getItem('hcm_theme');
+      document.documentElement.dataset.theme = savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
+    } catch (error) {
+      document.documentElement.dataset.theme = 'dark';
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="../assets/brand-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="app-shell">
+    <aside id="app-sidebar" class="sidebar"></aside>
+    <main class="main-content" id="main-content">
+      <header id="app-topbar" class="topbar"></header>
+      <div class="page-wrap">
+        <section class="page-heading" aria-labelledby="page-title">
+          <div>
+            <span class="eyebrow">Company overview</span>
+            <h1 id="page-title"><span id="greeting">Good day</span>, <span id="welcome-name">Admin</span></h1>
+            <p id="heading-summary">The shape of the day, drawn from your saved records.</p>
+          </div>
+          <div class="heading-actions">
+            <button class="button button-secondary" type="button" data-export-attendance>
+              <span data-icon="download"></span>Export attendance
+            </button>
+            <a class="button button-primary" href="employees.html">
+              <span data-icon="userPlus"></span>Add employee
+            </a>
+          </div>
+        </section>
+
+        <section class="stats-grid" aria-label="Company totals">
+          <article class="stat-card tone-violet">
+            <div class="stat-top"><span class="stat-label">Total people</span><span class="stat-mark" data-icon="users"></span></div>
+            <div class="stat-value" id="stat-employees">0</div>
+            <div class="stat-foot" id="stat-employees-foot">No employees yet</div>
+          </article>
+          <article class="stat-card tone-green">
+            <div class="stat-top"><span class="stat-label">Checked in</span><span class="stat-mark" data-icon="logIn"></span></div>
+            <div class="stat-value" id="stat-present">0</div>
+            <div class="stat-foot" id="stat-present-foot">Today’s saved check-ins</div>
+          </article>
+          <article class="stat-card tone-amber">
+            <div class="stat-top"><span class="stat-label">Late today</span><span class="stat-mark" data-icon="clock"></span></div>
+            <div class="stat-value" id="stat-late">0</div>
+            <div class="stat-foot" id="stat-late-foot">Beyond the grace period</div>
+          </article>
+          <article class="stat-card tone-blue">
+            <div class="stat-top"><span class="stat-label">Pending leave</span><span class="stat-mark" data-icon="calendarCheck"></span></div>
+            <div class="stat-value" id="stat-leaves">0</div>
+            <div class="stat-foot" id="stat-leaves-foot">Awaiting your decision</div>
+          </article>
+        </section>
+
+        <div class="dashboard-grid">
+          <section class="panel dashboard-main" aria-labelledby="attendance-heading">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Daily record</span>
+                <h2 id="attendance-heading">Today’s attendance</h2>
+                <p id="today-label">—</p>
+              </div>
+              <div class="panel-tools">
+                <button class="button button-secondary button-small" type="button" id="attendance-toggle">All records</button>
+                <a class="text-link" href="employees.html">People <span aria-hidden="true">→</span></a>
+              </div>
+            </div>
+            <div class="table-scroll">
+              <table class="attendance-table">
+                <thead>
+                  <tr>
+                    <th class="hidden" id="attendance-date-heading">Date</th>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Check in</th>
+                    <th>Check out</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="attendance-rows" aria-live="polite"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <div class="dashboard-side">
+            <section class="panel" aria-labelledby="pending-heading">
+              <div class="panel-heading">
+                <div>
+                  <span class="eyebrow">Decision queue</span>
+                  <h2 id="pending-heading">Pending leave</h2>
+                  <p>Requests waiting for your reply.</p>
+                </div>
+                <a class="text-link" href="leaves.html">Review <span aria-hidden="true">→</span></a>
+              </div>
+              <div class="compact-list" id="pending-list"></div>
+            </section>
+
+            <section class="panel" aria-labelledby="office-heading">
+              <div class="panel-heading">
+                <div>
+                  <span class="eyebrow">Company rhythm</span>
+                  <h2 id="office-heading">The office today</h2>
+                  <p>Your saved schedule at a glance.</p>
+                </div>
+                <span class="settings-symbol" data-icon="clock"></span>
+              </div>
+              <ul class="rule-list" id="office-facts"></ul>
+            </section>
+          </div>
+
+          <section class="panel insights-panel" data-attendance-insights aria-labelledby="insights-heading">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">A wider read</span>
+                <h2 id="insights-heading">Attendance insights</h2>
+                <p>Charts are built only from saved attendance records.</p>
+              </div>
+              <span class="insight-meta"><span class="live-dot" aria-hidden="true"></span>Local data</span>
+            </div>
+            <div class="chart-empty"><span data-icon="chart"></span>Insights appear after the first attendance record is saved.</div>
+          </section>
+
+          <section class="panel helper-panel" aria-labelledby="helper-heading">
+            <div class="panel-heading panel-heading-wrap">
+              <div>
+                <span class="eyebrow">Ask the workspace</span>
+                <h2 id="helper-heading">Smart helper</h2>
+                <p>Answers drawn from your real company data.</p>
+              </div>
+              <span class="helper-icon" data-icon="sparkles"></span>
+            </div>
+            <div class="helper-history" id="helper-history">
+              <div class="helper-message helper-answer" id="helper-welcome">Ask about headcount, approved leave, late arrivals or pending requests.</div>
+            </div>
+            <div class="helper-suggestions" id="helper-suggestions"></div>
+            <form class="helper-form" id="helper-form">
+              <label class="sr-only" for="helper-question">Ask the Smart Helper</label>
+              <input id="helper-question" name="question" placeholder="Ask about your team…" autocomplete="off" required>
+              <button class="icon-button" type="submit" aria-label="Send question"><span data-icon="arrowUp"></span></button>
+            </form>
+          </section>
+
+          <section class="panel announcements-panel" aria-labelledby="announcement-heading">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">Noticeboard</span>
+                <h2 id="announcement-heading">Announcements</h2>
+                <p>A short note travels further than a long email.</p>
+              </div>
+              <span class="insight-meta">Visible to your team</span>
+            </div>
+            <form class="announcement-form" id="announcement-form" novalidate>
+              <label class="field">
+                <span class="field-label">New announcement</span>
+                <textarea id="announcement-text" name="announcement" rows="3" maxlength="240" placeholder="Share a short team update…" required></textarea>
+                <small class="field-error" data-error-for="announcement"></small>
+              </label>
+              <div class="form-row-end">
+                <span class="char-count" data-char-count-for="announcement-text">0 / 240</span>
+                <button class="button button-secondary button-small" type="submit">Post update</button>
+              </div>
+              <p class="form-message" id="announcement-message" aria-live="polite"></p>
+            </form>
+            <div class="announcement-list" id="announcement-list"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="sidebar-scrim" aria-hidden="true"></div>
+
+  <script src="../js/storage.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/employees.js"></script>
+  <script src="../js/attendance.js"></script>
+  <script src="../js/leave.js"></script>
+  <script src="../js/helper.js"></script>
+  <script src="../js/ui.js"></script>
+  <script>
+    (() => {
+      'use strict';
+      const app = window.HireSpera;
+      const user = app.auth.protect('admin');
+      if (!user) return;
+      app.ui.mountShell({ active: 'overview', breadcrumb: 'Overview' });
+
+      const today = app.today();
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const currency = app.money;
+      let showingAll = false;
+
+      const $ = (selector) => document.querySelector(selector);
+      document.querySelector('#welcome-name').textContent = user.name.split(/\s+/)[0] || user.name;
+      document.querySelector('#greeting').textContent = app.ui.currentGreeting();
+
+      function workingDayLabel(day) {
+        return dayNames[day] || '';
+      }
+
+      function formatWorkingWeek(days) {
+        const sorted = [...(days || [])].sort((a, b) => a - b);
+        if (!sorted.length) return 'No working days selected';
+        if (sorted.join(',') === '1,2,3,4,5') return 'Monday to Friday';
+        return sorted.map(workingDayLabel).join(', ');
+      }
+
+      function statusClass(status) {
+        if (!status || status === 'Not checked in') return 'status-neutral';
+        return `status-${status.toLowerCase().replace(/\s+/g, '-')}`;
+      }
+
+      function peopleList() {
+        return app.employees.list().filter((person) => !person.createdAt || person.createdAt <= today);
+      }
+
+      function savedRecords() {
+        const people = new Map(app.read(app.keys.USERS, []).map((person) => [person.id, person]));
+        return app.read(app.keys.ATTENDANCE, [])
+          .filter((record) => people.has(record.employeeId))
+          .slice()
+          .sort((a, b) => b.date.localeCompare(a.date) || String(b.checkIn).localeCompare(String(a.checkIn)));
+      }
+
+      function personCell(person, showEmail = true) {
+        return `<div class="person-cell">
+          <span class="avatar avatar-small">${app.escape(app.initials(person.name))}</span>
+          <span><strong>${app.escape(person.name)}</strong>${showEmail ? `<small>${app.escape(person.email)}</small>` : ''}</span>
+        </div>`;
+      }
+
+      function renderStats() {
+        const people = peopleList();
+        const company = app.read(app.keys.COMPANY, {});
+        const records = app.read(app.keys.ATTENDANCE, []).filter((record) => record.date === today);
+        const pending = app.leave.pendingCount();
+        const working = app.attendance.isWorkingDay(today, company);
+        const departments = new Set(people.map((person) => person.department).filter(Boolean));
+        const onLeave = app.leave.list().filter((leave) => leave.status === 'Approved' && leave.from <= today && leave.to >= today).length;
+
+        document.querySelector('#stat-employees').textContent = people.length;
+        document.querySelector('#stat-employees-foot').textContent = people.length
+          ? `${departments.size} department${departments.size === 1 ? '' : 's'} in the directory`
+          : 'Add your first employee to begin';
+        document.querySelector('#stat-present').textContent = records.length;
+        document.querySelector('#stat-present-foot').textContent = working
+          ? `${records.length} of ${people.length} people checked in`
+          : 'The office is closed today';
+        document.querySelector('#stat-late').textContent = records.filter((record) => record.late).length;
+        document.querySelector('#stat-late-foot').textContent = `After ${app.timeLabel(company.officeStart || '09:00')} + ${Number(company.graceMinutes || 0)} min grace`;
+        document.querySelector('#stat-leaves').textContent = pending;
+        document.querySelector('#stat-leaves-foot').textContent = pending
+          ? `${onLeave} ${onLeave === 1 ? 'person is' : 'people are'} on approved leave today`
+          : onLeave
+            ? `${onLeave} ${onLeave === 1 ? 'person is' : 'people are'} on approved leave today`
+            : 'No requests need a decision';
+      }
+
+      function renderOfficeFacts() {
+        const company = app.read(app.keys.COMPANY, {});
+        const working = app.attendance.isWorkingDay(today, company);
+        document.querySelector('#office-facts').innerHTML = `
+          <li><span data-icon="clock"></span><span>Opens at <strong>${app.escape(app.timeLabel(company.officeStart || '09:00'))}</strong> with a ${Number(company.graceMinutes || 0)} minute grace period.</span></li>
+          <li><span data-icon="calendar"></span><span>Working week: <strong>${app.escape(formatWorkingWeek(company.workingDays))}</strong>.</span></li>
+          <li><span data-icon="${working ? 'checkCircle' : 'info'}"></span><span>Today is <strong>${working ? 'a working day' : 'not a working day'}</strong>.</span></li>
+          <li><span data-icon="briefcase"></span><span>Annual leave: <strong>${Number(company.leaveQuota || 0)} working days</strong> per person.</span></li>`;
+        app.ui.hydrateIcons(document.querySelector('#office-facts'));
+      }
+
+      function renderPending() {
+        const people = new Map(app.read(app.keys.USERS, []).map((person) => [person.id, person]));
+        const pending = app.leave.list().filter((leave) => leave.status === 'Pending').slice(0, 4);
+        const target = document.querySelector('#pending-list');
+        target.innerHTML = pending.length
+          ? pending.map((leave) => {
+              const person = people.get(leave.employeeId);
+              return `<a class="compact-item" href="leaves.html">
+                <span class="compact-avatar">${app.escape(app.initials(person?.name || '?'))}</span>
+                <span class="compact-copy"><strong>${app.escape(person?.name || 'Employee')}</strong><small>${app.escape(leave.type)} · ${app.dateLabel(leave.from)} – ${app.dateLabel(leave.to)}</small></span>
+                <span class="status status-pending">${leave.days}d</span>
+              </a>`;
+            }).join('')
+          : '<p class="empty-note">No requests need a decision right now.</p>';
+      }
+
+      function renderAttendance() {
+        const people = peopleList();
+        const records = savedRecords();
+        const peopleById = new Map(people.map((person) => [person.id, person]));
+        const toggle = document.querySelector('#attendance-toggle');
+        const dateHeading = document.querySelector('#attendance-date-heading');
+        const heading = document.querySelector('#attendance-heading');
+        const body = document.querySelector('#attendance-rows');
+
+        if (showingAll) {
+          heading.textContent = 'Attendance history';
+          dateHeading.classList.remove('hidden');
+          toggle.textContent = 'Today only';
+          body.innerHTML = records.length
+            ? records.map((record) => {
+                const person = peopleById.get(record.employeeId);
+                if (!person) return '';
+                return `<tr>
+                  <td>${app.dateLabel(record.date, { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                  <td>${personCell(person)}</td>
+                  <td>${app.escape(person.department || '—')}</td>
+                  <td>${record.checkIn ? app.escape(app.timeLabel(record.checkIn)) : '—'}</td>
+                  <td>${record.checkOut ? app.escape(app.timeLabel(record.checkOut)) : '—'}</td>
+                  <td><span class="status ${statusClass(record.status)}">${app.escape(record.status)}</span></td>
+                </tr>`;
+              }).join('')
+            : `<tr><td colspan="6" class="empty-cell">No attendance records yet. They appear here after an employee checks in.</td></tr>`;
+          return;
+        }
+
+        heading.textContent = 'Today’s attendance';
+        dateHeading.classList.add('hidden');
+        toggle.textContent = 'All records';
+        const company = app.read(app.keys.COMPANY, {});
+        if (!app.attendance.isWorkingDay(today, company)) {
+          body.innerHTML = `<tr><td colspan="5" class="empty-cell">The office is closed today. Your working week is ${app.escape(formatWorkingWeek(company.workingDays))}.</td></tr>`;
+          return;
+        }
+        if (!people.length) {
+          body.innerHTML = `<tr><td colspan="5" class="empty-cell">No employees yet. <a class="text-link" href="employees.html">Add your first employee</a> to start the attendance record.</td></tr>`;
+          return;
+        }
+        body.innerHTML = people.map((person) => {
+          const record = app.attendance.statusOn(person.id, today);
+          const checked = Boolean(record?.checkIn);
+          const status = checked ? record.status : 'Not checked in';
+          return `<tr>
+            <td>${personCell(person)}</td>
+            <td>${app.escape(person.department || '—')}</td>
+            <td>${checked ? app.escape(app.timeLabel(record.checkIn)) : '—'}</td>
+            <td>${record?.checkOut ? app.escape(app.timeLabel(record.checkOut)) : '—'}</td>
+            <td><span class="status ${statusClass(status)}">${app.escape(status)}</span></td>
+          </tr>`;
+        }).join('');
+      }
+
+      function renderAnnouncements() {
+        const company = app.read(app.keys.COMPANY, {});
+        const items = (company.announcements || []).slice().reverse().slice(0, 4);
+        document.querySelector('#announcement-list').innerHTML = items.length
+          ? items.map((item) => `<article class="announcement-item">
+              <p>${app.escape(item.text)}</p>
+              <div class="announcement-meta"><strong>${app.escape(item.author || 'Admin')}</strong><span aria-hidden="true">·</span><span>${app.dateLabel(item.date)}</span></div>
+            </article>`).join('')
+          : '<p class="empty-note">No announcements yet. The first note will appear here for everyone.</p>';
+      }
+
+      function renderHelperIntro() {
+        const people = peopleList().length;
+        const pending = app.leave.pendingCount();
+        document.querySelector('#helper-welcome').textContent = `You have ${people} ${people === 1 ? 'person' : 'people'} in the directory and ${pending} pending leave ${pending === 1 ? 'request' : 'requests'}. Ask me about headcount, approved leave, late arrivals or the queue.`;
+        document.querySelector('#helper-suggestions').innerHTML = app.helper.suggestions(user)
+          .map((suggestion) => `<button class="helper-chip" type="button" data-helper-suggestion>${app.escape(suggestion)}</button>`)
+          .join('');
+      }
+
+      function renderAll() {
+        const company = app.read(app.keys.COMPANY, {});
+        document.querySelector('#today-label').textContent = new Intl.DateTimeFormat('en', {
+          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        }).format(app.parseDate(today));
+        const working = app.attendance.isWorkingDay(today, company);
+        document.querySelector('#heading-summary').textContent = working
+          ? `The office is open. ${peopleList().length} ${peopleList().length === 1 ? 'person is' : 'people are'} on the roster today.`
+          : 'A quieter day. Attendance, leave and pay stay exactly where you left them.';
+        renderStats();
+        renderAttendance();
+        renderPending();
+        renderOfficeFacts();
+        renderAnnouncements();
+        renderHelperIntro();
+      }
+
+      document.querySelector('#attendance-toggle').addEventListener('click', () => {
+        showingAll = !showingAll;
+        renderAttendance();
+      });
+
+      document.querySelector('#announcement-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const textarea = form.elements.announcement;
+        const message = document.querySelector('#announcement-message');
+        const text = textarea.value.trim();
+        app.ui.clearErrors(form);
+        if (!text) {
+          app.ui.setFieldError(form, 'announcement', 'Write a short update before posting.');
+          textarea.focus();
+          return;
+        }
+        if (text.length > 240) {
+          app.ui.setFieldError(form, 'announcement', 'Keep the update within 240 characters.');
+          textarea.focus();
+          return;
+        }
+        const company = app.read(app.keys.COMPANY, {});
+        app.write(app.keys.COMPANY, {
+          ...company,
+          announcements: [...(company.announcements || []), { id: app.id(), text, date: today, author: user.name, createdAt: new Date().toISOString() }]
+        });
+        form.reset();
+        document.querySelector('[data-char-count-for="announcement-text"]').textContent = '0 / 240';
+        app.ui.setFormMessage(message, 'Posted to the company noticeboard.', 'success');
+        app.ui.toast('Announcement posted.');
+        renderAnnouncements();
+      });
+
+      app.ui.bindHelper(user);
+      renderAll();
+      app.ui.hydrateIcons();
+    })();
+  </script>
+  <script src="../js/bonus.js"></script>
+</body>
+</html>
